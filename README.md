@@ -33,4 +33,4 @@ Enter key  start画面の場合ゲーム開始
 トレースノーツ キャラをオブジェクトになぞらせよう！  
 
 ## ダウンロード先
-[ダウンロード](https://www.amazon.co.jp/clouddrive/share/BXX88QaWT40gKcz0rdzNFaiPHLWn3T37rnJipUsz2Dm)
+[ダウンロード](https://www.amazon.co.jp/clouddrive/share/qgCDAddUmxRwYwjsUiX0dAEeVTSnGZinFQd07REsoyU)
