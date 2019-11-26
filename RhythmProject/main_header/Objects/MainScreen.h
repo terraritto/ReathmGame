@@ -10,6 +10,13 @@ public:
 	void Start();
 	void Update();
 
+	enum class MainScene
+	{
+		BlurScene,
+		StartScene,
+		EndScene
+	};
+
 	//Notes
 	void AddNotes(class Notes* note);
 	void RemoveNotes(class Notes* note);
@@ -23,10 +30,22 @@ public:
 	//WallNotes
 	void AddWallNotes(class WallNotes* note);
 	void RemoveWallNotes(class WallNotes* note);
-	//music
-	void SetMusicFile(std::string fileName) { mMusicMemory = LoadSoundMem(fileName.c_str()); ChangeVolumeSoundMem(50, mMusicMemory); }
+	//notes effect
+	void StartNoteEffect(VECTOR pos);
+	void StartLongEffect(VECTOR pos);
+	void UpdateLongEffect(VECTOR pos,int& handle);
+	void EndLongEffect(int index);
+	//judge effect
+	void StartJudgeEffect();
+	void EndJudgeEffect();
+	//notes music
+	void SetMusicFile(std::string fileName);
 	auto GetNoteMusic() const { return mNortsSound; }
 	void StartNoteMusic();
+	//Scene
+	MainScene GetScene() { return mScene; }
+	//Text
+	void DrawStartText();
 public:
 	int mBpm;
 	int mLpb;
@@ -37,6 +56,10 @@ public:
 	//ノーツ素材
 	std::vector<class ObjectSampler*> mObjectSampler;
 	
+	//notes effect
+	std::vector<std::pair<bool,int>> mNortsPlayingEffect;
+	std::vector<int> mNortsEffectCount;
+
 	//player
 	class Player* mPlayer;
 
@@ -45,8 +68,8 @@ public:
 	int mCombo;
 	int mTotalCombo;
 private:
-	// is start?
-	bool mIsStart;
+	//scene
+	MainScene mScene;
 
 	//stage
 	class Actor* mStage;
@@ -59,6 +82,15 @@ private:
 	std::vector<class WallNotes*> mWallNotes;
 	std::pair<float, float> mPosOffset;//margin
 	
+	//ノーツエフェクト
+	std::vector<int> mNortsEffect;
+
+	//judge line effect
+	int mJudgeEffect; int mJudgeEffectStartHandle;
+
+	//text draw
+	bool mIsDrawText;
+
 	//ノーツ音声
 	std::vector<int> mNortsSound;
 	int mNortsSoundCount;
@@ -70,4 +102,7 @@ private:
 
 	//UI
 	class MainUI* mMainUI;
+
+	//blur Scene specific
+	LONGLONG mBrightTime;
 };

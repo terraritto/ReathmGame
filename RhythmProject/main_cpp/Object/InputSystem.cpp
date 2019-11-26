@@ -1,6 +1,5 @@
 #pragma once
 #include "../../main_header/Objects/InputSystem.h"
-#include "DxLib.h"
 #include <stdlib.h>
 
 bool KeyboardState::GetKeyValue(const int KeyCode) const
@@ -65,6 +64,37 @@ ButtonState MouseState::GetButtonState(int button) const
 	}
 }
 
+bool ControllerState::GetButtonValue(int button) const
+{
+	return (mCurrButtons.Buttons[button]);
+}
+
+ButtonState ControllerState::GetButtonState(int button) const
+{
+	if (mPrevButtons.Buttons[button] == 0)
+	{
+		if (mCurrButtons.Buttons[button] == 0)
+		{
+			return ENone;
+		}
+		else
+		{
+			return EPressed;
+		}
+	}
+	else
+	{
+		if (mCurrButtons.Buttons[button] == 0)
+		{
+			return EReleased;
+		}
+		else
+		{
+			return EHeld;
+		}
+	}
+}
+
 bool InputSystem::Initialize()
 {
 	//keyboard
@@ -75,6 +105,13 @@ bool InputSystem::Initialize()
 	mState.Mouse.mCurrButtons = 0;
 	mState.Mouse.mPrevButtons = 0;
 
+	// Get the connected controller, if it exists
+	mState.Controller.mIsConnected = GetJoypadNum() > 0;
+	// Initialize controller state
+	GetJoypadDirectInputState(DX_INPUT_PAD1,&mState.Controller.mCurrButtons);
+	GetJoypadDirectInputState(DX_INPUT_PAD1,&mState.Controller.mCurrButtons);
+	//set DeadZone
+	SetJoypadDeadZone(DX_INPUT_PAD1, 0.35);
 	return true;
 }
 
@@ -97,6 +134,9 @@ void InputSystem::PrepareForUpdate()
 	mState.Mouse.mPrevButtons = mState.Mouse.mCurrButtons;
 	mState.Mouse.mIsRelative = false;
 	mState.Mouse.mScrollWheel = 0;
+
+	// Controller
+	mState.Controller.mPrevButtons = mState.Controller.mCurrButtons;
 }
 
 void InputSystem::Update()
@@ -114,4 +154,12 @@ void InputSystem::Update()
 	mState.Mouse.mMousePos.y = static_cast<float>(y);
 	//Mouse Wheel
 	mState.Mouse.mScrollWheel = GetMouseWheelRotVol();
+
+	//Controller
+	mState.Controller.mIsConnected = GetJoypadNum() > 0;
+	//buttons
+	GetJoypadDirectInputState(DX_INPUT_PAD1,&mState.Controller.mCurrButtons);
+	//trigers
+	mState.Controller.mStick.x = mState.Controller.mCurrButtons.X;
+	mState.Controller.mStick.y = mState.Controller.mCurrButtons.Y;
 }

@@ -30,9 +30,10 @@ Actor::~Actor()
 
 	//if actor has a model, delete the model
 	if (mModelHandle != -1) {
+		ErrorLogFmtAdd("Delete Model Start: %d", mModelHandle);
 		mModelHandle = MV1DeleteModel(mModelHandle);
+		ErrorLogFmtAdd("Delete Model: %d", mModelHandle);
 	}
-	mModelHandle = -100;
 }
 
 void Actor::Update(float deltaTime)

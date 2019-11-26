@@ -10,15 +10,15 @@ MainUI::MainUI(Game* game)
 	: UIScreen(game)
 	, mJacket(nullptr)
 {
-	mBGPos = Pos(0,0);
-	mBackground = LoadGraph("object/HUD_Background.png");
+	//mBGPos = Pos(0,0);
+	//mBackground = LoadGraph("object/HUD_Background.png");
 	
-	mJacket = new JacketUI(game);
+	//mJacket = new JacketUI(game);
 }
 
 MainUI::~MainUI()
 {
-	mJacket->Close();
+	//mJacket->Close();
 }
 
 void MainUI::Update(float deltaTime)
@@ -45,11 +45,11 @@ void MainUI::Draw()
 	}
 
 	//update combo
-	int fontHandle = mFont->GetFont(20);
+	int fontHandle = mFont->GetFont(30);
 	int total = mGame->GetMainScreen()->mTotalCombo;
 	int combo = mGame->GetMainScreen()->mCombo;
 	int maxCombo = mGame->GetMainScreen()->mMaxCombo;
 	DrawFormatStringToHandle(10, 200, GetColor(255, 255, 255), fontHandle, "total: %d / %d", total, maxCombo);
-	DrawFormatStringToHandle(10, 225, GetColor(255, 255, 255), fontHandle, "combo: %d", combo);
+	DrawFormatStringToHandle(10, 235, GetColor(255, 255, 255), fontHandle, "combo: %d", combo);
 
 }

@@ -21,5 +21,9 @@ private:
 	std::array<LONGLONG,2> mArrivalTime;
 	EColor mColor;
 
-	bool mIsUpdate; //objectの更新が終わってるか?
+	bool mIsUpdate; //objectの更新が終わってるか？
+	
+	//effect
+	bool mIseffect; //effectは割り当てたか？
+	int mEffectIndex;
 };

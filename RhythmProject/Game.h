@@ -19,6 +19,7 @@ public:
 	enum class RhythmGame
 	{
 		EStartScene,
+		ESelectScene,
 		EGameScene
 	};
 
@@ -26,7 +27,7 @@ public:
 	bool Initialize();
 	void RunLoop();
 	void Shutdown();
-	
+
 	void AddActor(class Actor* actor);
 	void RemoveActor(class Actor* actor);
 
@@ -39,12 +40,21 @@ public:
 	void SetState(GameState state) { mGameState = state; }
 	//game-specific
 	MainScreen* GetMainScreen() { return mMainScreen; }
-	
+
+	void SetGameSpeed(float speed) { mSpeed = speed; }
+	void SetGameTiming(float timing) { mTiming = timing; }
+	void SetGameVolume(float volume) { mVolume = volume; }
+	float GetGameSpeed() { return mSpeed; }
+	float GetGameTiming() { return mTiming; }
+	float GetGameVolume() { return mVolume; }
+	void SetGameNortsFile(std::string text) { mNortsFile = text; }
+	std::string GetGameNortsFile() { return mNortsFile; }
+
 	//deleter to use any sceen.
 	void DeleteStartScreen(const RhythmGame& state);
 	void DeleteMainScreen(const RhythmGame& state);
+	void DeleteSelectScreen(const RhythmGame& state);
 private:
-	//helper function for game loop
 	//helper function for game loop
 	void ProcessInput();
 	//void HandleKeyPress(int key);
@@ -75,6 +85,12 @@ private:
 	class InputSystem* mInputSystem;
 
 	//Game-specific code
-	 class MainScreen* mMainScreen;
-	 class StartScene* mStartSceen;
+	class MainScreen* mMainScreen;
+	class StartScene* mStartSceen;
+	class SelectMenu* mSelectScreen;
+
+	float mSpeed;
+	float mTiming;
+	float mVolume;
+	std::string mNortsFile;
 };

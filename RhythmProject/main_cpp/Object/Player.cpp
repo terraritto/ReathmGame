@@ -4,11 +4,12 @@
 #include "../../main_header/Objects/MainScreen.h"
 #include "../../main_header/wrapper/Math.h"
 #include <string>
+#include "DxLib.h"
 
 Player::Player(Game* game,MainScreen* main)
 	:Actor(game)
 {
-	SetModelHandle<std::string>("object/Player.mv1");
+	SetModelHandle<std::string>("object/Chara01.mv1");
 	SetPosition<VECTOR>(VGet(main->GetPosOffset().first + 100.0f * 3,  //ÉåÅ[Éìà íu
 		main->GetPosOffset().second, //yé≤à íu
 		10.0f));
@@ -32,6 +33,7 @@ void Player::ActorInput(const InputState& keyState)
 	}
 
 	VECTOR pos = GetPosition<VECTOR>();
+	/*keyboard*/
 	if (keyState.Keyboard.GetKeyValue(KEY_INPUT_LEFT) == 1)
 	{
 		pos.x -= mSpeed;
@@ -52,47 +54,64 @@ void Player::ActorInput(const InputState& keyState)
 		pos.z -= mSpeed;
 	}
 
-	if (keyState.Keyboard.GetKeyState(KEY_INPUT_Z) == EPressed)
-	{
-		mInputTime[static_cast<int>(EColor::ERed)] = GetNowHiPerformanceCount();
-		mIsInput[static_cast<int>(EColor::ERed)] = true;
-	}
+	if (GetGame<Game>()->GetMainScreen()->GetScene() == MainScreen::MainScene::StartScene) {
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_A) == EPressed)
+		{
+			mInputTime[static_cast<int>(EColor::ERed)] = GetNowHiPerformanceCount();
+			mIsInput[static_cast<int>(EColor::ERed)] = true;
+		}
 
-	if (keyState.Keyboard.GetKeyState(KEY_INPUT_Z) == EHeld ||
-		keyState.Keyboard.GetKeyState(KEY_INPUT_Z) == EPressed)
-	{
-		mInputLongTime[static_cast<int>(EColor::ERed)] = GetNowHiPerformanceCount();
-		mIsLongInput[static_cast<int>(EColor::ERed)] = true;
-	}
-	
-	if (keyState.Keyboard.GetKeyValue(KEY_INPUT_X) == EPressed)
-	{
-		mInputTime[static_cast<int>(EColor::EGreen)] = GetNowHiPerformanceCount();
-		mIsInput[static_cast<int>(EColor::EGreen)] = true;
-	}
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_A) == EHeld ||
+			keyState.Keyboard.GetKeyState(KEY_INPUT_A) == EPressed)
+		{
+			mInputLongTime[static_cast<int>(EColor::ERed)] = GetNowHiPerformanceCount();
+			mIsLongInput[static_cast<int>(EColor::ERed)] = true;
+		}
 
-	if (keyState.Keyboard.GetKeyState(KEY_INPUT_X) == EHeld ||
-		keyState.Keyboard.GetKeyState(KEY_INPUT_X) == EPressed)
-	{
-		mInputLongTime[static_cast<int>(EColor::EGreen)] = GetNowHiPerformanceCount();
-		mIsLongInput[static_cast<int>(EColor::EGreen)] = true;
-	}
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_S) == EPressed)
+		{
+			mInputTime[static_cast<int>(EColor::EGreen)] = GetNowHiPerformanceCount();
+			mIsInput[static_cast<int>(EColor::EGreen)] = true;
+		}
 
-	if (keyState.Keyboard.GetKeyValue(KEY_INPUT_C) == EPressed)
-	{
-		mInputTime[static_cast<int>(EColor::EBlue)] = GetNowHiPerformanceCount();
-		mIsInput[static_cast<int>(EColor::EBlue)] = true;
-	}
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_S) == EHeld ||
+			keyState.Keyboard.GetKeyState(KEY_INPUT_S) == EPressed)
+		{
+			mInputLongTime[static_cast<int>(EColor::EGreen)] = GetNowHiPerformanceCount();
+			mIsLongInput[static_cast<int>(EColor::EGreen)] = true;
+		}
 
-	if (keyState.Keyboard.GetKeyState(KEY_INPUT_C) == EHeld ||
-		keyState.Keyboard.GetKeyState(KEY_INPUT_C) == EPressed)
-	{
-		mInputLongTime[static_cast<int>(EColor::EBlue)] = GetNowHiPerformanceCount();
-		mIsLongInput[static_cast<int>(EColor::EBlue)] = true;
-	}
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_D) == EPressed)
+		{
+			mInputTime[static_cast<int>(EColor::EBlue)] = GetNowHiPerformanceCount();
+			mIsInput[static_cast<int>(EColor::EBlue)] = true;
+		}
 
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_D) == EHeld ||
+			keyState.Keyboard.GetKeyState(KEY_INPUT_D) == EPressed)
+		{
+			mInputLongTime[static_cast<int>(EColor::EBlue)] = GetNowHiPerformanceCount();
+			mIsLongInput[static_cast<int>(EColor::EBlue)] = true;
+		}
+	}
 	pos.x = Math::Clamp(pos.x, -260.0f, 260.0f);
+	//SetPosition(pos);
+
+	/*joystick*/
+	if (keyState.Controller.GetIsConnected())
+	{
+		pos.x = (keyState.Controller.GetStick().x / 1000.0f) * 260.0f;
+		if (keyState.Controller.GetButtonValue(1))
+		{
+			pos.z += PLAYER_SPEED;
+		}
+		else
+		{
+			pos.z -= PLAYER_SPEED;
+		}
+	}
 	pos.z = Math::Clamp(pos.z, 0.0f, 240.0f);
+
 	SetPosition(pos);
 }
 

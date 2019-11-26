@@ -92,7 +92,14 @@ public:
 	constexpr Dim GetDimention() const { return mDimention; }
 
 	template<class Str>
-	constexpr void SetModelHandle(Str fileName) { mModelHandle = MV1LoadModel(fileName.c_str()); mIsDrawModel = true; }
+	constexpr void SetModelHandle(Str fileName) 
+	{ 
+		mModelHandle = MV1LoadModel(fileName.c_str()); 
+		mIsDrawModel = true; 
+		ErrorLogFmtAdd("Load Model: %d", mModelHandle);
+		ErrorLogFmtAdd("Load File: %s", fileName.c_str());
+
+	}
 	int GetModelHandle() const { return mModelHandle; }
 
 	template<class Is>

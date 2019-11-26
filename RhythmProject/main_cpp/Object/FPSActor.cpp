@@ -27,6 +27,11 @@ FPSActor::FPSActor(Game* game)
 	GetMousePoint(&mouseX, &mouseY);
 }
 
+FPSActor::~FPSActor()
+{
+	mFPSModel->SetState(Actor::EDead);
+}
+
 void FPSActor::UpdateActor(float deltaTime)
 {
 	Actor::UpdateActor(deltaTime);
@@ -51,29 +56,6 @@ void FPSActor::ActorInput(const InputState& keys)
 	float upSpeed = 0.0f;
 
 	//WASDmovement
-	/*
-	if (keys.Keyboard.GetKeyValue(KEY_INPUT_W) == 1)
-	{
-		forwardSpeed += 400.0f;
-	}
-	if (keys.Keyboard.GetKeyValue(KEY_INPUT_S) == 1)
-	{
-		forwardSpeed -= 400.0f;
-	}
-	if (keys.Keyboard.GetKeyValue(KEY_INPUT_A) == 1)
-	{
-		strafeSpeed += 400.0f;
-	}
-	if (keys.Keyboard.GetKeyValue(KEY_INPUT_D) == 1)
-	{
-		strafeSpeed -= 400.0f;
-	}
-
-	if (keys.Keyboard.GetKeyValue(KEY_INPUT_SPACE) == 1)
-	{
-		upSpeed += 400.0f;
-	}
-	*/
 	mMoveComp->SetForwardSpeed(forwardSpeed);
 	mMoveComp->SetStrafeSpeed(strafeSpeed);
 	mMoveComp->SetUpSpeed(upSpeed);
@@ -104,5 +86,4 @@ void FPSActor::ActorInput(const InputState& keys)
 	}
 	//mCameraComp->SetPitchSpeed(pitchSpeed);
 
-	SetMousePoint(512, 384);
 }

@@ -36,6 +36,29 @@ struct Pos
 	int y;
 	Pos() :x(0), y(0) {}
 	Pos(int posX, int posY) :x(posX), y(posY) {}
+
+	Pos& operator+=(const Pos& rhs)
+	{
+		x += rhs.x;
+		y += rhs.y;
+		return *this;
+	}
+
+	Pos& operator*=(const float& rhs)
+	{
+		x *= rhs;
+		y *= rhs;
+
+		return *this;
+	}
+
+	Pos operator*(const float& rhs)
+	{
+		Pos temp(x,y);
+		temp.x *= rhs;
+		temp.y *= rhs;
+		return temp;
+	}
 };
 
 class Button

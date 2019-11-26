@@ -17,12 +17,13 @@ WallNotes::~WallNotes()
 
 void WallNotes::UpdateActor(float deltaTime)
 {
-	float startValue = GetGame<Game>()->GetMainScreen()->GetPosOffset().second
-		+ 2500.0f * ((mArrivalTime[0] - GetGame<Game>()->GetMainScreen()->mNowTime) / 6000000.0f);
-	float endValue = +2500.0f * ((mArrivalTime[1] - GetGame<Game>()->GetMainScreen()->mNowTime) / 6000000.0f);
+	float startValue = GetGame<Game>()->GetMainScreen()->GetPosOffset().second + mScale * 10
+		+ 2500.0f * ((mArrivalTime[0] - GetGame<Game>()->GetMainScreen()->mNowTime) / (ONE_TIME * (2.1 - GetGame<Game>()->GetGameSpeed() / 5)));
+
+	float endValue = +2500.0f * ((mArrivalTime[1] - GetGame<Game>()->GetMainScreen()->mNowTime) / (ONE_TIME * (2.1 - GetGame<Game>()->GetGameSpeed() / 5)));
 
 
-	if (startValue < GetGame<Game>()->GetMainScreen()->GetPosOffset().second)
+	if (startValue < GetGame<Game>()->GetMainScreen()->GetPosOffset().second + mScale * 10)
 	{
 		if (endValue < -500.0f) // 0.0Ç™íöìxèIÇÌÇËÇÃïîï™Ç™ìÕÇ¢ÇΩèÍèäÅAÇªÇ±Ç©ÇÁè≠ÇµÇ∏ÇÁÇ∑
 		{
@@ -67,8 +68,8 @@ void WallNotes::UpdateActor(float deltaTime)
 	{
 		VECTOR pos = GetPosition<VECTOR>();
 		pos.x = GetGame<Game>()->GetMainScreen()->GetPosOffset().first + 100.0f * mLane + 50;//Ç±Ç±Ç≈offsetÇÃâeãø
-		pos.y = GetGame<Game>()->GetMainScreen()->GetPosOffset().second
-			+ (endValue);//+2500.0f * ((ArrivalTime - GetGame<Game>()->GetMainScreen()->mNowTime) / 6000000.0f));
+		pos.y = startValue;//GetGame<Game>()->GetMainScreen()->GetPosOffset().second
+			//+ (endValue);//+2500.0f * ((ArrivalTime - GetGame<Game>()->GetMainScreen()->mNowTime) / 6000000.0f));
 		pos.z = mHeight; //çÇÇ≥ÇÃâeãø
 		SetPosition<VECTOR>(pos);
 	}
@@ -86,9 +87,9 @@ void WallNotes::Draw()
 void WallNotes::SetScale()
 {
 	float start = GetGame<Game>()->GetMainScreen()->GetPosOffset().second
-		+ (+2500.0f * (mArrivalTime[0] / 6000000.0f));
+		+ (+2500.0f * (mArrivalTime[0] / (ONE_TIME * (2.1 - GetGame<Game>()->GetGameSpeed() / 5))));
 	float end = GetGame<Game>()->GetMainScreen()->GetPosOffset().second
-		+ (+2500.0f * (mArrivalTime[1] / 6000000.0f));
+		+ (+2500.0f * (mArrivalTime[1] / (ONE_TIME * (2.1 - GetGame<Game>()->GetGameSpeed() / 5))));
 	float size = (end - start) / 10.0f;
 	mScale = size;
 }

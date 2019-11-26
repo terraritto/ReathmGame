@@ -20,11 +20,12 @@ StartScene::StartScene(Game* game)
 	MV1SetFrameVisible(mStage->GetModelHandle(), 4, FALSE);
 	MV1SetFrameVisible(mStage->GetModelHandle(), 5, FALSE);
 
-
 	mFPSActor = new FPSActor(game);
 	mFPSActor->SetPosition(VGet(0.0f, -1500.0f, 0.0f));
 	//mFPSActor->SetPosition(VGet(0.0f, 0.0f, 0.0f));
 
+	//setting card reader
+	//mCardReader = LazyPCSCFelicaLite::PCSCFelicaLite();
 }
 
 StartScene::~StartScene()
@@ -40,9 +41,9 @@ void StartScene::ProcessInput(const InputState& state)
 		mGame->SetState(Game::GameState::EQuit);
 	}
 
-	if (state.Keyboard.GetKeyValue(KEY_INPUT_RETURN))
+	if (state.Keyboard.GetKeyValue(KEY_INPUT_RETURN) /*|| mCardReader.autoConnectToFelica()*/)
 	{
-		mGame->DeleteStartScreen(Game::RhythmGame::EGameScene);
+		mGame->DeleteStartScreen(Game::RhythmGame::ESelectScene);
 	}
 }
 

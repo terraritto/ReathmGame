@@ -10,26 +10,45 @@
 #include "../../main_header/Objects/FPSActor.h"
 #include "../../main_header/Objects/MainUI.h"
 
+#include "EffekseerForDXLib.h"
+#include <algorithm>
+
 MainScreen::MainScreen(Game* game)
 	:mGame(game),
-	mPosOffset(std::make_pair(-300,-1140)),
+	mPosOffset(std::make_pair(-300,-1160)),
 	mNortsSoundCount(0),
+	mNortsEffectCount(),
 	mStageRotation(0.0f),
 	mCombo(0),
 	mMaxCombo(0),
 	mTotalCombo(0),
-	mIsStart(false)
+	mScene(MainScene::BlurScene),
+	mIsDrawText(false)
 {
 	mStage = new Actor(game);
 	mStage->SetPosition(VGet(0.0f, 0.0f, 0.0f));
 	mStage->SetModelHandle<std::string>("object/Stage.mv1");
 
+	//notes‚Ìeffect‚ð—pˆÓ
+	mNortsEffect.emplace_back(LoadEffekseerEffect("object/tap_effect.efk",1.5f));
+	mNortsEffectCount.emplace_back(0);
+	mNortsEffect.emplace_back(LoadEffekseerEffect("object/long_effect.efk", 1.5f));
+	mNortsEffectCount.emplace_back(0);
+
+	// set effect of judge
+	mJudgeEffect = LoadEffekseerEffect("object/trace_judge_line.efk");
+	ErrorLogFmtAdd("load effect number: %d", mJudgeEffect);
+
+	for (int i = 0; i < 30; i++)
+	{
+		mNortsPlayingEffect.emplace_back(std::make_pair(false, -1));
+	}
+
 	//notes‚Ì‰¹‚ð—pˆÓ
-	int notesSound = LoadSoundMem("Music/touchNotes.wav");
-	mNortsSound.emplace_back(notesSound);
-	for (int i = 0; i < 29; i++)
+	for (int i = 0; i < 30; i++)
 	{
 		mNortsSound.emplace_back(LoadSoundMem("Music/touchNotes.wav"));
+		ChangeVolumeSoundMem(255, mNortsSound[i]);
 	}
 	
 	//player‚Ì—pˆÓ
@@ -58,6 +77,9 @@ MainScreen::MainScreen(Game* game)
 	MV1SetOpacityRate(object->GetModelHandle(), 0.3f);
 
 	mObjectSampler.emplace_back(object);
+	
+	//bright specific
+	mBrightTime = GetNowHiPerformanceCount();
 }
 
 MainScreen::~MainScreen()
@@ -67,32 +89,38 @@ MainScreen::~MainScreen()
 	{
 		if (sound != -1)
 		{
-			DeleteSoundMem(sound);
+			sound = DeleteSoundMem(sound);
+			ErrorLogFmtAdd("delete sound: %d", sound);
 		}
 	}
 
 	if (mMusicMemory != -1)
 	{
-		DeleteSoundMem(mMusicMemory);
+		ErrorLogFmtAdd("delete main sound: %d",DeleteSoundMem(mMusicMemory));
 	}
 
 	//delete actor
 	for (auto object : mObjectSampler)
 	{
 		object->SetState(Actor::State::EDead);
-		MV1DeleteModel(object->GetModelHandle());
 	}
 
 	mPlayer->SetState(Actor::State::EDead);
-	MV1DeleteModel(mPlayer->GetModelHandle());
 
 	mStage->SetState(Actor::State::EDead);
-	MV1DeleteModel(mStage->GetModelHandle());
 
 	mFPSActor->SetState(Actor::State::EDead); // don't add 3D model
 
 	//delete UI
 	mMainUI->Close();
+
+	//delete effect
+	for (auto object : mNortsEffect)
+	{
+		ErrorLogFmtAdd("delete effect number: %d", object);
+		ErrorLogFmtAdd("effect: %d", DeleteEffekseerEffect(object));
+	}
+	DeleteEffekseerEffect(mJudgeEffect);
 }
 
 void MainScreen::Start()
@@ -101,19 +129,49 @@ void MainScreen::Start()
 
 	PlaySoundMem(mMusicMemory, DX_PLAYTYPE_BACK, TRUE);
 	mFirstTime = GetNowHiPerformanceCount();
-	mIsStart = true;
+	StartJudgeEffect();//judge effect start
 }
 
 void MainScreen::Update()
 {
-	//‹…‘Ì‚Ì‰ñ“]
+	//rotate of sphere
 	mStageRotation += 0.002;
 	MATRIX rot = MGetRotY(mStageRotation);
 	MV1SetFrameUserLocalMatrix(mStage->GetModelHandle(), 0, rot);
 	if (mStageRotation > DX_TWO_PI) { mStageRotation = 0.0f; }
+	
+	if (mScene == MainScene::BlurScene)
+	{
+		LONGLONG nowTime = GetNowHiPerformanceCount() - mBrightTime;
+		
+		//---text output---
+		if (nowTime < ONE_TIME / 2)
+		{
+			mIsDrawText = true;
+		}
+		//-----------------
+		if (nowTime < ONE_TIME)
+		{
+			SetLightDifColor(GetColorF(0.1f, 0.1f, 0.1f, 0.0f));
+		}
+		else if (nowTime < ONE_TIME * 9 / 6)
+		{
+			double col = 1 -(ONE_TIME * 9 / 6 - nowTime)/(ONE_TIME/2);
+			SetLightDifColor(GetColorF(1.0f * col, 1.0f * col, 1.0f * col, 0.0f));
+			mIsDrawText = false;
+		}
+		else
+		{
+			SetLightDifColor(GetColorF(1.0f, 1.0f, 1.0f, 0.0f));
+			Start();
+			mScene = MainScene::StartScene;
+		}
+		return;
+	}
 
+	if (mScene == MainScene::StartScene)
+	{
 
-	if (mIsStart) {
 		mNowTime = GetNowHiPerformanceCount() - mFirstTime;
 
 		if (
@@ -124,8 +182,16 @@ void MainScreen::Update()
 			mTraceNotes.size() == 0
 			)
 		{
-			mGame->DeleteMainScreen(Game::RhythmGame::EStartScene);
+			mScene = MainScene::EndScene;
 		}
+		
+		return;
+	}
+
+	if (mScene == MainScene::EndScene)
+	{
+		mGame->DeleteMainScreen(Game::RhythmGame::EStartScene);
+		return;
 	}
 }
 
@@ -195,4 +261,66 @@ void MainScreen::StartNoteMusic()
 	PlaySoundMem(mNortsSound[mNortsSoundCount],DX_PLAYTYPE_BACK);
 	mNortsSoundCount++;
 	if (mNortsSound.size() == mNortsSoundCount) { mNortsSoundCount = 0; }
+}
+
+void MainScreen::DrawStartText()
+{
+	if (mIsDrawText)
+	{
+		DrawString(WINDOW_WIDTH / 2 - 100, WINDOW_HEIGHT / 2 - 200, "Are You Ready?", GetColor(255, 255, 255));
+	}
+}
+
+//notes effect
+void MainScreen::StartNoteEffect(VECTOR pos)
+{
+	VECTOR setPos = VGet(pos.x, 20.0, mPosOffset.second - 5); //prepare pos
+	int handle = PlayEffekseer3DEffect(mNortsEffect[0]); //play effect
+	SetPosPlayingEffekseer3DEffect(handle, setPos.x, setPos.y, setPos.z);
+	SetRotationPlayingEffekseer3DEffect(handle, 0,0,0); //set effect pos and rotation
+}
+
+
+//long notes effect
+void MainScreen::StartLongEffect(VECTOR pos)
+{
+	VECTOR setPos = VGet(pos.x, 20.0, mPosOffset.second - 5); //prepare pos
+	mNortsPlayingEffect[mNortsEffectCount[1]] = std::make_pair(true,PlayEffekseer3DEffect(mNortsEffect[1])); //play effect
+	SetPosPlayingEffekseer3DEffect(mNortsPlayingEffect[mNortsEffectCount[1]].second, setPos.x, setPos.y, setPos.z);
+	SetRotationPlayingEffekseer3DEffect(mNortsPlayingEffect[mNortsEffectCount[1]].second, 0, 0, 0); //set effect pos and rotation
+
+	mNortsEffectCount[1]++; //plus count
+
+	if (mNortsPlayingEffect.size() == mNortsEffectCount[1]) { mNortsEffectCount[1] = 0; } // update index
+}
+
+void MainScreen::UpdateLongEffect(VECTOR pos,int& handle)
+{
+	VECTOR setPos = VGet(pos.x, 20.0, mPosOffset.second - 5); //prepare pos
+	handle = PlayEffekseer3DEffect(mNortsEffect[1]); //play effect
+	SetPosPlayingEffekseer3DEffect(handle, setPos.x, setPos.y, setPos.z);
+	SetRotationPlayingEffekseer3DEffect(handle, 0, 0, 0); //set effect pos and rotation
+}
+
+void MainScreen::EndLongEffect(int index)
+{
+	int handle = StopEffekseer3DEffect(mNortsPlayingEffect[index].second);
+	mNortsPlayingEffect[index] = std::pair(false, 0);
+}
+
+void MainScreen::StartJudgeEffect()
+{
+	mJudgeEffectStartHandle = PlayEffekseer3DEffect(mJudgeEffect);
+	SetPosPlayingEffekseer3DEffect(mJudgeEffectStartHandle, 0, 240, mPosOffset.second + 15);
+}
+
+void MainScreen::EndJudgeEffect()
+{
+	StopEffekseer3DEffect(mJudgeEffect);
+}
+
+void MainScreen::SetMusicFile(std::string fileName)
+{
+	mMusicMemory = LoadSoundMem(fileName.c_str()); 
+	ChangeVolumeSoundMem(255 * mGame->GetGameVolume() / 10, mMusicMemory);
 }

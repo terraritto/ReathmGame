@@ -179,4 +179,6 @@ void FileRead(std::string fileName, MainScreen* screen, Game* game)
 			break;
 		}
 	}
+
+	ifs.close();
 }

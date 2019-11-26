@@ -1,4 +1,5 @@
 #pragma once
+#include "..//wrapper//CardReader.h"
 
 class StartScene
 {
@@ -22,4 +23,6 @@ private:
 	float mStageRotation;
 	float mAlpha;
 	FlashStr mStrState;
+
+	//LazyPCSCFelicaLite::PCSCFelicaLite mCardReader;
 };

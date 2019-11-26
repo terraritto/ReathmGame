@@ -16,11 +16,11 @@ TraceNotes::~TraceNotes()
 
 void TraceNotes::UpdateActor(float deltaTime)
 {
-	float startValue = GetGame<Game>()->GetMainScreen()->GetPosOffset().second
-		+ 2500.0f * ((mArrivalTime[0] - GetGame<Game>()->GetMainScreen()->mNowTime) / 6000000.0f);
-	float endValue = +2500.0f * ((mArrivalTime[1] - GetGame<Game>()->GetMainScreen()->mNowTime) / 6000000.0f);
+	float startValue = GetGame<Game>()->GetMainScreen()->GetPosOffset().second + mScale * 10
+		+ 2500.0f * ((mArrivalTime[0] - GetGame<Game>()->GetMainScreen()->mNowTime) / (ONE_TIME * (2.1 - GetGame<Game>()->GetGameSpeed() / 5.0f)));
+	float endValue = +2500.0f * ((mArrivalTime[1] - GetGame<Game>()->GetMainScreen()->mNowTime) / (ONE_TIME * (2.1 - GetGame<Game>()->GetGameSpeed() / 5.0f)));
 
-	if (startValue < GetGame<Game>()->GetMainScreen()->GetPosOffset().second)
+	if (startValue < GetGame<Game>()->GetMainScreen()->GetPosOffset().second + mScale * 10)
 	{
 		if (endValue < -500.0f) // 0.0Ç™íöìxèIÇÌÇËÇÃïîï™Ç™ìÕÇ¢ÇΩèÍèäÅAÇªÇ±Ç©ÇÁè≠ÇµÇ∏ÇÁÇ∑
 		{
@@ -29,14 +29,14 @@ void TraceNotes::UpdateActor(float deltaTime)
 
 		VECTOR pos = GetPosition<VECTOR>();
 		pos.x = GetGame<Game>()->GetMainScreen()->GetPosOffset().first + 50.0f * mLane[1] + 50;//Ç±Ç±Ç≈offsetÇÃâeãø
-		pos.y = GetGame<Game>()->GetMainScreen()->GetPosOffset().second
-			+ (endValue);
+		pos.y = GetGame<Game>()->GetMainScreen()->GetPosOffset().second  +
+			endValue;
 		SetPosition<VECTOR>(pos);
 
 		if (endValue < -100.0f) { return; }//Ç±ÇÍà»ç~Ç…ìñÇΩÇÈÇ±Ç∆ÇÕÇ»Ç¢ÇÃÇ≈èdÇ¢èàóùÇÕè¡Ç∑
 		else //ìñÇΩÇËîªíË
 		{
-			int objectHandle = GetGame<Game>()->GetMainScreen()->mObjectSampler[0]->GetModelHandle();
+			int objectHandle = GetGame<Game>()->GetMainScreen()->mObjectSampler[1]->GetModelHandle();
 
 			//à íuí≤êÆ
 			MV1SetScale(objectHandle, VGet(1.0f, 1.0f, mScale));//scaleÇîΩâf
@@ -66,7 +66,7 @@ void TraceNotes::UpdateActor(float deltaTime)
 		VECTOR pos = GetPosition<VECTOR>();
 		pos.x = GetGame<Game>()->GetMainScreen()->GetPosOffset().first + 50.0f * mLane[1] + 50;//Ç±Ç±Ç≈offsetÇÃâeãø
 		pos.y = GetGame<Game>()->GetMainScreen()->GetPosOffset().second
-			+ (endValue);//+2500.0f * ((ArrivalTime - GetGame<Game>()->GetMainScreen()->mNowTime) / 6000000.0f));
+			+endValue; //((ArrivalTime - GetGame<Game>()->GetMainScreen()->mNowTime) / 6000000.0f));
 		pos.z = 240.0f + 60.0f; //add characteroffset 
 		
 		SetPosition<VECTOR>(pos);
@@ -86,11 +86,11 @@ void TraceNotes::Draw()
 void TraceNotes::SetScale()
 {
 	float start = GetGame<Game>()->GetMainScreen()->GetPosOffset().second
-		+ (+2500.0f * (mArrivalTime[0] / 6000000.0f));
+		+ (+2500.0f * (mArrivalTime[0] / (ONE_TIME * (2.1 - GetGame<Game>()->GetGameSpeed() / 5))));
 	float startLane = GetGame<Game>()->GetMainScreen()->GetPosOffset().first + 50.0f * mLane[0] + 50;
 	
 	float end = GetGame<Game>()->GetMainScreen()->GetPosOffset().second
-		+ (+2500.0f * (mArrivalTime[1] / 6000000.0f));
+		+ (+2500.0f * (mArrivalTime[1] / (ONE_TIME * (2.1 - GetGame<Game>()->GetGameSpeed() / 5))));
 	float endLane = GetGame<Game>()->GetMainScreen()->GetPosOffset().first + 50.0f * mLane[1] + 50;
 
 	VECTOR startVec = VGet(startLane, start, 0.0f);
@@ -101,5 +101,6 @@ void TraceNotes::SetScale()
 	mScale = size;
 	//äpìxÇéÊìæÇµÅAâÒì]
 	float rad = Math::Atan2(endVec.x - startVec.x, endVec.y - startVec.y);
+	//float rad = Math::Atan2(-startVec.y + endVec.y,-startVec.x + endVec.x);
 	mRad = rad;
 }

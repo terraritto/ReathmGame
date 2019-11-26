@@ -10,7 +10,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		game.RunLoop();
 	}
-	
 	game.Shutdown();
 
 	return 0;

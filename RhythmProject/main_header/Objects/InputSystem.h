@@ -1,4 +1,5 @@
 #pragma once
+#include "DxLib.h"
 
 //The different button states
 enum ButtonState
@@ -57,12 +58,34 @@ private:
 };
 
 //Helper for controller input
+class ControllerState
+{
+public:
+	friend class InputSystem;
+
+	//Forbuttons
+	bool GetButtonValue(int button) const;
+	ButtonState GetButtonState(int button) const;
+
+	const Position& GetStick() const { return mStick; }
+	
+	bool GetIsConnected() const { return mIsConnected; }
+private:
+	//Current/previous buttons
+	DINPUT_JOYSTATE mCurrButtons;
+	DINPUT_JOYSTATE mPrevButtons;
+	// Left/right sticks
+	Position mStick;
+	//Is this controller connected?
+	bool mIsConnected;
+};
 
 //Wrapper that contains current state of input
 struct InputState
 {
 	KeyboardState Keyboard;
 	MouseState Mouse;
+	ControllerState Controller;
 };
 
 class InputSystem

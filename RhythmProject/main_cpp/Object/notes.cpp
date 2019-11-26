@@ -6,7 +6,7 @@ Notes::Notes(Game* game)
 	:Actor(game)
 {
 	SetPosition<VECTOR>(VGet(game->GetMainScreen()->GetPosOffset().first + 100.0f * mLane + 50,  
-		game->GetMainScreen()->GetPosOffset().second + (+2500.0f * (ArrivalTime / 6000000.0f)), 
+		game->GetMainScreen()->GetPosOffset().second + (+2500.0f * (ArrivalTime / (ONE_TIME * (2.1 - GetGame<Game>()->GetGameSpeed() / 5)))),
 		10.0f));
 
 	game->GetMainScreen()->AddNotes(this);
@@ -20,7 +20,7 @@ Notes::~Notes()
 void Notes::UpdateActor(float deltaTime)
 {
 	VECTOR pos = GetPosition<VECTOR>();
-	float value = +2500.0f * ((ArrivalTime - GetGame<Game>()->GetMainScreen()->mNowTime) / 6000000.0f);
+	float value = +2500.0f * (static_cast<float>((ArrivalTime - GetGame<Game>()->GetMainScreen()->mNowTime)) / static_cast<float>((ONE_TIME *(2.1 - GetGame<Game>()->GetGameSpeed()/5))));
 	pos.x = GetGame<Game>()->GetMainScreen()->GetPosOffset().first + 100.0f * mLane + 50;
 	pos.y = GetGame<Game>()->GetMainScreen()->GetPosOffset().second
 		+ (value);//+2500.0f * ((ArrivalTime - GetGame<Game>()->GetMainScreen()->mNowTime) / 6000000.0f));
@@ -31,8 +31,8 @@ void Notes::UpdateActor(float deltaTime)
 		LONGLONG plTime = GetGame<Game>()->GetMainScreen()->mPlayer->mInputTime[static_cast<int>(mColor)]
 			- GetGame<Game>()->GetMainScreen()->mFirstTime;
 		if (
-			(plTime - ArrivalTime) <= JUDGE_TIME * 2
-			&& (plTime - ArrivalTime) >= -JUDGE_TIME * 2
+			(plTime - ArrivalTime + (-1) * GetGame<Game>()->GetGameTiming()/10 * JUDGE_OFFSET) <= JUDGE_TIME * 4
+			&& (plTime - ArrivalTime + (-1) * GetGame<Game>()->GetGameTiming()/10 * JUDGE_OFFSET) >= -JUDGE_TIME * 4
 			)
 		{
 			//update combo
@@ -40,8 +40,8 @@ void Notes::UpdateActor(float deltaTime)
 			GetGame<Game>()->GetMainScreen()->mCombo += 1;
 
 			SetState(EDead);
-			MV1DeleteModel(GetModelHandle());
 			GetGame<Game>()->GetMainScreen()->StartNoteMusic();
+			GetGame<Game>()->GetMainScreen()->StartNoteEffect(GetPosition<VECTOR>());
 			GetGame<Game>()->GetMainScreen()->mPlayer->mIsInput[static_cast<int>(mColor)] = false;
 		}
 	}
@@ -52,7 +52,6 @@ void Notes::UpdateActor(float deltaTime)
 		GetGame<Game>()->GetMainScreen()->mCombo = 0;
 
 		SetState(EDead);
-		MV1DeleteModel(GetModelHandle());
 	}
 }
 

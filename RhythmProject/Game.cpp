@@ -1,8 +1,10 @@
 #include "Game.h"
+#include "EffekseerForDXLib.h"
 #include "main_header\Actors\Actor.h"
 #include "main_header\Objects\UIScreen.h"
 #include "main_header\Objects\Font.h"
 #include "main_header\Objects\MainScreen.h"
+#include "main_header/Objects/SelectMenu.h"
 #include "main_header\Objects\StartScene.h"
 #include "main_header\Objects\InputSystem.h"
 #include "main_header\Objects\LoadNotesFile.h"
@@ -27,22 +29,37 @@ bool Game::Initialize()
 	SetGraphMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32);
 	//SetGraphMode(540, 960, 32);
 
+	SetAlwaysRunFlag(TRUE);
+
+	//DirectX versionを指定
+	SetUseDirect3DVersion(DX_DIRECT3D_11);
+
 	// ＤＸライブラリの初期化
-	if (DxLib_Init() < 0) { return false; };
+	if (DxLib_Init() == -1) { mGameState = GameState::EQuit; return false; };
+
+	//描画先を裏画面に変更する
+	SetDrawScreen(DX_SCREEN_BACK);
+
+	//Effekseerの初期化
+	if (Effkseer_Init(8000) == -1)
+	{
+		mGameState = GameState::EQuit;
+		return false;
+	}
+
+	//Effekseerの為の指定
+	SetChangeScreenModeGraphicsSystemResetFlag(FALSE);
 
 	//音データのメモリに載せる際の手法の選択
 	SetCreateSoundDataType(DX_SOUNDDATATYPE_MEMPRESS);
-	
-	SetDrawScreen(DX_SCREEN_BACK);
+
 	//initialize input system
 	mInputSystem = new InputSystem();
 	if (!mInputSystem->Initialize())
 	{
 		return false;
 	}
-	
-	SetMouseDispFlag(FALSE);
-	
+
 	mTickCount = GetNowCount();
 
 	LoadData();
@@ -53,6 +70,7 @@ bool Game::Initialize()
 void Game::Shutdown()
 {
 	UnLoadData();
+	Effkseer_End();
 	DxLib_End();
 }
 
@@ -98,6 +116,12 @@ void Game::ProcessInput()
 	{
 		mStartSceen->ProcessInput(state);
 	}
+
+	//Input about SelectScene
+	if (mRhythmGameState == RhythmGame::ESelectScene)
+	{
+		mSelectScreen->ProcessInput(state);
+	}
 }
 
 void Game::GenerateOutput()
@@ -106,6 +130,10 @@ void Game::GenerateOutput()
 
 	for (auto actor : mActors)
 	{
+		//映らない範囲はスキップ
+		if (actor->GetPosition<VECTOR>().z > 800.0f) { continue; }
+
+
 		//透過なし部分だけを描画
 		if (actor->GetIsDrawModel<bool>()) {
 			auto chara = actor->GetModelHandle();
@@ -142,15 +170,27 @@ void Game::GenerateOutput()
 		mStartSceen->DrawStr();
 	}
 
+	if (mRhythmGameState == RhythmGame::EGameScene)
+	{
+		mMainScreen->DrawStartText();
+	}
+
 	//上の奴
 	//DrawBox(0, 0, 540, 100, GetColor(255, 0, 0), TRUE);
 	//DrawBox(0, 150, 150, 300, GetColor(0, 255, 0), TRUE);
+
+	//effekseer
+	UpdateEffekseer3D();
+	DrawEffekseer3D();
 }
 
 void Game::UpdateGame()
 {
+	//effekseer
+	Effekseer_Sync3DSetting();//カメラ合わせ
+
 	//Time
- 	float deltaTime = (GetNowCount() - mTickCount) / 1000.0f;
+	float deltaTime = (GetNowCount() - mTickCount) / 1000.0f;
 	if (deltaTime > 0.05f) { deltaTime = 0.05f; }
 	mTickCount = GetNowCount();
 
@@ -227,7 +267,6 @@ void Game::UpdateGame()
 			++iter;
 		}
 	}
-
 }
 
 void Game::LoadData()
@@ -236,11 +275,14 @@ void Game::LoadData()
 	{
 	case RhythmGame::EStartScene:
 		mStartSceen = new StartScene(this);
+
+		break;
+	case RhythmGame::ESelectScene:
+		mSelectScreen = new SelectMenu(this);
 		break;
 	case RhythmGame::EGameScene:
 		mMainScreen = new MainScreen(this);
-		FileRead("soreha.csv", mMainScreen, this);
-		mMainScreen->Start();//とりあえずここでスタート
+		FileRead(mNortsFile, mMainScreen, this);
 		break;
 	default:
 		break;
@@ -265,6 +307,11 @@ void Game::UnLoadData()
 	{
 		delete mMainScreen;
 		mMainScreen = nullptr;
+	}
+
+	if (mSelectScreen)
+	{
+		mSelectScreen->Close();
 	}
 
 	if (mInputSystem)
@@ -355,6 +402,10 @@ void Game::DeleteManager()
 			mStartSceen = nullptr;
 			mActors.shrink_to_fit(); //shink and secure memory.
 			break;
+		case RhythmGame::ESelectScene:
+			mSelectScreen->GameSetting();
+			mSelectScreen->Close();
+			break;
 		case RhythmGame::EGameScene:
 			delete mMainScreen;
 			mMainScreen = nullptr;
@@ -375,6 +426,11 @@ void Game::DeleteStartScreen(const RhythmGame& state)
 }
 
 void Game::DeleteMainScreen(const RhythmGame& state)
+{
+	mNextState = state;
+}
+
+void Game::DeleteSelectScreen(const RhythmGame& state)
 {
 	mNextState = state;
 }

@@ -9,4 +9,5 @@ ObjectSampler::ObjectSampler(Game* game)
 
 ObjectSampler::~ObjectSampler()
 {
+	
 }

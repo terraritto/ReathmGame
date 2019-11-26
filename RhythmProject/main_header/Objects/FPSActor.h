@@ -7,6 +7,7 @@ class FPSActor:public Actor
 {
 public:
 	FPSActor(class Game* game);
+	~FPSActor();
 	void UpdateActor(float deltaTime) override;
 	void ActorInput(const struct InputState& keys) override;
 private:
