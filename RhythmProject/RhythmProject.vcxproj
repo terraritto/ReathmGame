@@ -197,58 +197,6 @@
     <ClInclude Include="main_header\wrapper\Math.h" />
     <ClInclude Include="main_header\wrapper\MusicInf.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Music\soreha.ogg" />
-    <None Include="object\notes.fbx" />
-    <None Include="object\notes.mv1" />
-    <None Include="object\Notes_blue.fbx" />
-    <None Include="object\Notes_blue.mv1" />
-    <None Include="object\Notes_green.fbx" />
-    <None Include="object\Notes_green.mv1" />
-    <None Include="object\Notes_red.fbx" />
-    <None Include="object\Notes_red.mv1" />
-    <None Include="object\Player.fbx" />
-    <None Include="object\Player.mv1" />
-    <None Include="object\Stage.fbx" />
-    <None Include="object\Stage.mv1" />
-    <None Include="object\trace_notes_ball.fbx" />
-    <None Include="object\trace_notes_ball.mv1" />
-    <None Include="object\trace_notes_pipe.fbx" />
-    <None Include="object\trace_notes_pipe.mv1" />
-    <None Include="object\wall.fbx" />
-    <None Include="object\wall.mv1" />
-    <None Include="Text\soreha.csv" />
-    <None Include="Text\test.csv" />
-  </ItemGroup>
-  <ItemGroup>
-    <Media Include="Music\touchNotes.wav" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="object\Button.png" />
-    <Image Include="object\Button_push.png" />
-    <Image Include="object\HUD_Background.png" />
-    <Image Include="object\lane.fbm\lane.png" />
-    <Image Include="object\lane.fbm\lane_default.png" />
-    <Image Include="object\soreha.PNG" />
-    <Image Include="object\Stage.fbm\box.png" />
-    <Image Include="object\Stage.fbm\lane.png" />
-    <Image Include="object\Stage.fbm\lane_default.png" />
-    <Image Include="object\Stage.fbm\Stage.png" />
-    <Image Include="object\Stage.fbm\Universe.png" />
-    <Image Include="object\Start.png" />
-    <Image Include="object\Textbox.png" />
-    <Image Include="object\trace_notes.fbm\trace_50.png" />
-    <Image Include="object\trace_notes_ball.fbm\trace_25.png" />
-    <Image Include="object\trace_notes_ball.fbm\trace_50.png" />
-    <Image Include="object\trace_notes_pipe.fbm\trace_25.png" />
-    <Image Include="object\trace_notes_pipe.fbm\trace_50.png" />
-    <Image Include="object\trace_notes_pipe.fbm\trace_notes_pipe.png" />
-    <Image Include="object\wall.fbm\wall.png" />
-    <Image Include="object\wall.fbm\wall_50.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="object\Memo.txt" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
