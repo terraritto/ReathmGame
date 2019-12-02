@@ -14,6 +14,9 @@ UIScreen::UIScreen(Game* game)
 {
 	mGame->PushUI(this);
 	mFont = mGame->GetFont("MSƒSƒVƒbƒN");
+
+	mButtonOn = LoadGraph("object/Button_Push.png");
+	mButtonOff = LoadGraph("object/Button.png");
 }
 
 UIScreen::~UIScreen()
@@ -47,7 +50,7 @@ void UIScreen::Draw()
 	for (auto b : mButtons)
 	{
 		int tex = b->GetHighlighted() ? mButtonOn : mButtonOff;
-		DrawGraph(b->GetPosition().x, b->GetPosition().y, tex, TRUE);
+		DrawGraph(b->GetPosition().x, b->GetPosition().y, tex, FALSE);
 		TextInf text = b->GetName();
 		int fontHandle = mFont->GetFont(text.size);
 		if (fontHandle != -1) {
@@ -65,6 +68,8 @@ void UIScreen::ProcessInput(const InputState& state)
 		Pos sendPos(mousePos.x, mousePos.y);
 
 		//Highlight any buttons
+		/* 
+		//mouse
 		for (auto b : mButtons)
 		{
 			if (b->ContainsPoint(sendPos))
@@ -76,7 +81,28 @@ void UIScreen::ProcessInput(const InputState& state)
 				b->SetHighlighted(false);
 			}
 
-			if (state.Mouse.GetButtonValue(MOUSE_INPUT_LEFT) == 1)
+			if (state.Keyboard.GetKeyState(KEY_INPUT_RETURN) == ButtonState::EPressed)
+				if (b->GetHighlighted())
+				{
+					b->OnClick();
+					break;
+				}
+		}
+		*/
+
+		//keyboard
+		for (auto b : mButtons)
+		{
+			if (state.Keyboard.GetKeyState(b->GetInHighLight()) == ButtonState::EPressed)
+			{
+				b->SetHighlighted(true);
+			}
+			if(state.Keyboard.GetKeyState(b->GetOutHighLight()) == ButtonState::EPressed)
+			{
+				b->SetHighlighted(false);
+			}
+
+			if (state.Keyboard.GetKeyState(KEY_INPUT_RETURN) == ButtonState::EPressed)
 				if (b->GetHighlighted())
 				{
 					b->OnClick();
@@ -107,6 +133,23 @@ void UIScreen::AddButton(const TextInf& name, std::function<void()> onClick)
 	//Move down by height of button plus padding
 	GetGraphSize(mButtonOff, &texX, &texY);
 	mNextButtonPos.y += texY + 20.0f;
+}
+
+void UIScreen::AddButton(const TextInf& name, std::function<void()> onClick, bool highLighted,int in, int out)
+{
+	int texX, texY;
+	GetGraphSize(mButtonOn, &texX, &texY);
+	Pos dims(texX, texY);
+	Button* b = new Button(name, onClick, Pos(name.x,name.y), dims);
+	//--keyboard--
+	b->SetHighlighted(highLighted);
+	b->SetInHighLight(in);
+	b->SetOutHighLight(out);
+	//------------
+	mButtons.emplace_back(b);
+	//Update position of next button
+	//Move down by height of button plus padding
+	GetGraphSize(mButtonOff, &texX, &texY);
 }
 
 Button::Button(const TextInf name,

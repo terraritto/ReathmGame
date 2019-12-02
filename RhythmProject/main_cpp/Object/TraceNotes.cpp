@@ -25,6 +25,7 @@ void TraceNotes::UpdateActor(float deltaTime)
 		if (endValue < -500.0f) // 0.0が丁度終わりの部分が届いた場所、そこから少しずらす
 		{
 			SetState(EDead);
+			GetGame<Game>()->GetMainScreen()->EndTraceEffect(); //end effect
 		}
 
 		VECTOR pos = GetPosition<VECTOR>();
@@ -36,7 +37,7 @@ void TraceNotes::UpdateActor(float deltaTime)
 		if (endValue < -100.0f) { return; }//これ以降に当たることはないので重い処理は消す
 		else //当たり判定
 		{
-			int objectHandle = GetGame<Game>()->GetMainScreen()->mObjectSampler[1]->GetModelHandle();
+			int objectHandle = GetGame<Game>()->GetMainScreen()->mObjectSampler[0]->GetModelHandle();
 
 			//位置調整
 			MV1SetScale(objectHandle, VGet(1.0f, 1.0f, mScale));//scaleを反映
@@ -52,12 +53,13 @@ void TraceNotes::UpdateActor(float deltaTime)
 			VECTOR posUp = VAdd(posDown, VGet(0.0f, PLAYER_RAD_OFFSET, 0.0f));
 
 			//当たり判定
-			MV1_COLL_RESULT_POLY_DIM  result = MV1CollCheck_Capsule(objectHandle, 0, posDown, posUp, PLAYER_RAD_OFFSET + 50);
+			MV1_COLL_RESULT_POLY_DIM  result = MV1CollCheck_Capsule(objectHandle, 0, posDown, posUp, PLAYER_RAD_OFFSET+50);
 
 			if (result.HitNum >= 1) //hit
 			{
 				MV1SetMaterialDrawBlendMode(plHandle, 0, DX_BLENDMODE_MUL);
 				MV1SetMaterialDrawBlendParam(plHandle, 0, 255);
+				GetGame<Game>()->GetMainScreen()->StartTraceEffect(posDown); //start effect
 			}
 		}
 	}
@@ -70,6 +72,8 @@ void TraceNotes::UpdateActor(float deltaTime)
 		pos.z = 240.0f + 60.0f; //add characteroffset 
 		
 		SetPosition<VECTOR>(pos);
+
+		GetGame<Game>()->GetMainScreen()->EndTraceEffect(); //end effect
 	}
 }
 

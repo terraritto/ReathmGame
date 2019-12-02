@@ -22,14 +22,16 @@ Player::~Player()
 
 void Player::ActorInput(const InputState& keyState)
 {
-	for (int i = 0; i < mIsInput.size(); i++)
+	for (int i = 0; i < mIsInputRight.size(); i++)
 	{
-		mIsInput[i] = false;
+		mIsInputRight[i] = false;
+		mIsInputLeft[i] = false;
 	}
 	
-	for (int i = 0; i < mIsLongInput.size(); i++)
+	for (int i = 0; i < mIsLongInputRight.size(); i++)
 	{
-		mIsLongInput[i] = false;
+		mIsLongInputRight[i] = false;
+		mIsLongInputLeft[i] = false;
 	}
 
 	VECTOR pos = GetPosition<VECTOR>();
@@ -55,43 +57,158 @@ void Player::ActorInput(const InputState& keyState)
 	}
 
 	if (GetGame<Game>()->GetMainScreen()->GetScene() == MainScreen::MainScene::StartScene) {
-		if (keyState.Keyboard.GetKeyState(KEY_INPUT_A) == EPressed)
-		{
-			mInputTime[static_cast<int>(EColor::ERed)] = GetNowHiPerformanceCount();
-			mIsInput[static_cast<int>(EColor::ERed)] = true;
-		}
-
-		if (keyState.Keyboard.GetKeyState(KEY_INPUT_A) == EHeld ||
-			keyState.Keyboard.GetKeyState(KEY_INPUT_A) == EPressed)
-		{
-			mInputLongTime[static_cast<int>(EColor::ERed)] = GetNowHiPerformanceCount();
-			mIsLongInput[static_cast<int>(EColor::ERed)] = true;
-		}
-
+		//norts
 		if (keyState.Keyboard.GetKeyState(KEY_INPUT_S) == EPressed)
 		{
-			mInputTime[static_cast<int>(EColor::EGreen)] = GetNowHiPerformanceCount();
-			mIsInput[static_cast<int>(EColor::EGreen)] = true;
+			mInputTimeRight[static_cast<int>(EColor::ERed)] = GetNowHiPerformanceCount();
+			mIsInputRight[static_cast<int>(EColor::ERed)] = true;
 		}
 
-		if (keyState.Keyboard.GetKeyState(KEY_INPUT_S) == EHeld ||
-			keyState.Keyboard.GetKeyState(KEY_INPUT_S) == EPressed)
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_J) == EPressed)
 		{
-			mInputLongTime[static_cast<int>(EColor::EGreen)] = GetNowHiPerformanceCount();
-			mIsLongInput[static_cast<int>(EColor::EGreen)] = true;
+			mInputTimeLeft[static_cast<int>(EColor::ERed)] = GetNowHiPerformanceCount();
+			mIsInputLeft[static_cast<int>(EColor::ERed)] = true;
 		}
 
+		//longnorts
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_S) == EPressed)
+		{
+			mInputLongTimeRight[static_cast<int>(EColor::ERed)] = GetNowHiPerformanceCount();
+			mIsLongInputRight[static_cast<int>(EColor::ERed)] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_S) == EHeld)
+		{
+			mInputLongTimeRight[static_cast<int>(EColor::ERed)+1] = GetNowHiPerformanceCount();
+			mIsLongInputRight[static_cast<int>(EColor::ERed)+1] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_S) == EReleased)
+		{
+			mInputLongTimeRight[static_cast<int>(EColor::ERed)+2] = GetNowHiPerformanceCount();
+			mIsLongInputRight[static_cast<int>(EColor::ERed)+2] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_J) == EPressed)
+		{
+			mInputLongTimeLeft[static_cast<int>(EColor::ERed)] = GetNowHiPerformanceCount();
+			mIsLongInputLeft[static_cast<int>(EColor::ERed)] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_J) == EHeld)
+		{
+			mInputLongTimeLeft[static_cast<int>(EColor::ERed) + 1] = GetNowHiPerformanceCount();
+			mIsLongInputLeft[static_cast<int>(EColor::ERed) + 1] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_J) == EReleased)
+		{
+			mInputLongTimeLeft[static_cast<int>(EColor::ERed) + 2] = GetNowHiPerformanceCount();
+			mIsLongInputLeft[static_cast<int>(EColor::ERed) + 2] = true;
+		}
+
+		//norts
 		if (keyState.Keyboard.GetKeyState(KEY_INPUT_D) == EPressed)
 		{
-			mInputTime[static_cast<int>(EColor::EBlue)] = GetNowHiPerformanceCount();
-			mIsInput[static_cast<int>(EColor::EBlue)] = true;
+			mInputTimeRight[static_cast<int>(EColor::EGreen)] = GetNowHiPerformanceCount();
+			mIsInputRight[static_cast<int>(EColor::EGreen)] = true;
 		}
 
-		if (keyState.Keyboard.GetKeyState(KEY_INPUT_D) == EHeld ||
-			keyState.Keyboard.GetKeyState(KEY_INPUT_D) == EPressed)
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_K) == EPressed)
 		{
-			mInputLongTime[static_cast<int>(EColor::EBlue)] = GetNowHiPerformanceCount();
-			mIsLongInput[static_cast<int>(EColor::EBlue)] = true;
+			mInputTimeLeft[static_cast<int>(EColor::EGreen)] = GetNowHiPerformanceCount();
+			mIsInputLeft[static_cast<int>(EColor::EGreen)] = true;
+		}
+
+		//long norts
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_D) == EPressed)
+		{
+			int col = static_cast<int>(EColor::EGreen) * 3;
+			mInputLongTimeRight[col] = GetNowHiPerformanceCount();
+			mIsLongInputRight[col] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_D) == EHeld)
+		{
+			int col = static_cast<int>(EColor::EGreen) * 3 + 1;
+
+			mInputLongTimeRight[col] = GetNowHiPerformanceCount();
+			mIsLongInputRight[col] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_D) == EReleased)
+		{
+			int col = static_cast<int>(EColor::EGreen) * 3 + 2;
+			mInputLongTimeRight[col] = GetNowHiPerformanceCount();
+			mIsLongInputRight[col] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_K) == EPressed)
+		{
+			mInputLongTimeLeft[static_cast<int>(EColor::EGreen)*3] = GetNowHiPerformanceCount();
+			mIsLongInputLeft[static_cast<int>(EColor::EGreen)*3] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_K) == EHeld)
+		{
+			mInputLongTimeLeft[static_cast<int>(EColor::EGreen)*3 + 1] = GetNowHiPerformanceCount();
+			mIsLongInputLeft[static_cast<int>(EColor::EGreen)*3 + 1] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_K) == EReleased)
+		{
+			mInputLongTimeLeft[static_cast<int>(EColor::EGreen)*3 + 2] = GetNowHiPerformanceCount();
+			mIsLongInputLeft[static_cast<int>(EColor::EGreen)*3 + 2] = true;
+		}
+
+		//norts
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_F) == EPressed)
+		{
+			mInputTimeRight[static_cast<int>(EColor::EBlue)] = GetNowHiPerformanceCount();
+			mIsInputRight[static_cast<int>(EColor::EBlue)] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_L) == EPressed)
+		{
+			mInputTimeLeft[static_cast<int>(EColor::EBlue)] = GetNowHiPerformanceCount();
+			mIsInputLeft[static_cast<int>(EColor::EBlue)] = true;
+		}
+
+		//long norts
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_F) == EPressed)
+		{
+			mInputLongTimeRight[static_cast<int>(EColor::EBlue)*3] = GetNowHiPerformanceCount();
+			mIsLongInputRight[static_cast<int>(EColor::EBlue)*3] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_F) == EHeld)
+		{
+			mInputLongTimeRight[static_cast<int>(EColor::EBlue)*3 + 1] = GetNowHiPerformanceCount();
+			mIsLongInputRight[static_cast<int>(EColor::EBlue)*3 + 1] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_F) == EReleased)
+		{
+			mInputLongTimeRight[static_cast<int>(EColor::EBlue)*3 + 2] = GetNowHiPerformanceCount();
+			mIsLongInputRight[static_cast<int>(EColor::EBlue)*3 + 2] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_L) == EPressed)
+		{
+			mInputLongTimeLeft[static_cast<int>(EColor::EBlue)*3] = GetNowHiPerformanceCount();
+			mIsLongInputLeft[static_cast<int>(EColor::EBlue)*3] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_L) == EHeld)
+		{
+			mInputLongTimeLeft[static_cast<int>(EColor::EBlue)*3 + 1] = GetNowHiPerformanceCount();
+			mIsLongInputLeft[static_cast<int>(EColor::EBlue)*3 + 1] = true;
+		}
+
+		if (keyState.Keyboard.GetKeyState(KEY_INPUT_L) == EReleased)
+		{
+			mInputLongTimeLeft[static_cast<int>(EColor::EBlue)*3 + 2] = GetNowHiPerformanceCount();
+			mIsLongInputLeft[static_cast<int>(EColor::EBlue)*3 + 2] = true;
 		}
 	}
 	pos.x = Math::Clamp(pos.x, -260.0f, 260.0f);

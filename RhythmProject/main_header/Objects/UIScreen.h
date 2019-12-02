@@ -81,12 +81,19 @@ public:
 	bool ContainsPoint(const Pos& pt) const;
 	//Called when button is clicked
 	void OnClick();
+	// keyboard specific
+	void SetInHighLight(int key) { mInHighLight = key; }
+	int GetInHighLight() { return mInHighLight; }
+	void SetOutHighLight(int key) { mOutHighLight = key; }
+	int GetOutHighLight() { return mOutHighLight; }
 private:
 	std::function<void()> mOnClick;
 	TextInf mName;
 	Pos mPosition;
 	Pos mDimentions;
 	bool mHighlighted;
+	//keyboard specific
+	int mInHighLight; int mOutHighLight;
 };
 
 
@@ -113,6 +120,7 @@ public:
 	//Change the title text
 	void SetTitleTextAndPos(TextInf& textTitle);
 	void AddButton(const TextInf& name, std::function<void()> onClick);
+	void AddButton(const TextInf& name, std::function<void()> onClick, bool highLighted, int in, int out);
 protected:
 	//Sets the mouse mode to relative or not
 	class Game* mGame;

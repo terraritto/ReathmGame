@@ -17,4 +17,5 @@ private:
 	int mLane; 
 	LONGLONG ArrivalTime; 
 	EColor mColor;
+	EKeyboardDirection mDir;
 };

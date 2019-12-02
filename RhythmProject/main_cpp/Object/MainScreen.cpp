@@ -9,6 +9,7 @@
 #include "../../main_header/Objects/Player.h"
 #include "../../main_header/Objects/FPSActor.h"
 #include "../../main_header/Objects/MainUI.h"
+#include "../../main_header/Objects/tutorialUI.h"
 
 #include "EffekseerForDXLib.h"
 #include <algorithm>
@@ -23,7 +24,9 @@ MainScreen::MainScreen(Game* game)
 	mMaxCombo(0),
 	mTotalCombo(0),
 	mScene(MainScene::BlurScene),
-	mIsDrawText(false)
+	mIsDrawText(false),
+	mIsTraceEffect(false),
+	mIsWallEffect(false)
 {
 	mStage = new Actor(game);
 	mStage->SetPosition(VGet(0.0f, 0.0f, 0.0f));
@@ -34,10 +37,20 @@ MainScreen::MainScreen(Game* game)
 	mNortsEffectCount.emplace_back(0);
 	mNortsEffect.emplace_back(LoadEffekseerEffect("object/long_effect.efk", 1.5f));
 	mNortsEffectCount.emplace_back(0);
+	mNortsEffect.emplace_back(LoadEffekseerEffect("object/long_end_effect.efk", 1.5f));
+	mNortsEffectCount.emplace_back(0);
+	
+	// set effect of trace
+	mTraceNotesEffect = LoadEffekseerEffect("object/trace_effect.efk");
 
+	// set effect of wall
+	mWallNotesEffect = LoadEffekseerEffect("object/damage_effect.efk");
+	
 	// set effect of judge
 	mJudgeEffect = LoadEffekseerEffect("object/trace_judge_line.efk");
-	ErrorLogFmtAdd("load effect number: %d", mJudgeEffect);
+
+	// set effect of character area
+	mCharaAreaEffect = LoadEffekseerEffect("object/character_area.efk");
 
 	for (int i = 0; i < 30; i++)
 	{
@@ -77,7 +90,7 @@ MainScreen::MainScreen(Game* game)
 	MV1SetOpacityRate(object->GetModelHandle(), 0.3f);
 
 	mObjectSampler.emplace_back(object);
-	
+
 	//bright specific
 	mBrightTime = GetNowHiPerformanceCount();
 }
@@ -114,22 +127,46 @@ MainScreen::~MainScreen()
 	//delete UI
 	mMainUI->Close();
 
+	if (mState == ScreenState::ETutorial)
+	{
+		mTutorialUI->Close();
+	}
 	//delete effect
 	for (auto object : mNortsEffect)
 	{
 		ErrorLogFmtAdd("delete effect number: %d", object);
 		ErrorLogFmtAdd("effect: %d", DeleteEffekseerEffect(object));
 	}
+	StopEffekseer3DEffect(mJudgeEffectStartHandle);
+	StopEffekseer3DEffect(mCharaAreaEffectStartHandle);
 	DeleteEffekseerEffect(mJudgeEffect);
+	DeleteEffekseerEffect(mCharaAreaEffect);
 }
 
 void MainScreen::Start()
 {
 	mMaxCombo = mNorts.size() + mLongNotes.size();
 
-	PlaySoundMem(mMusicMemory, DX_PLAYTYPE_BACK, TRUE);
+	if (mState == ScreenState::EMain) {
+		PlaySoundMem(mMusicMemory, DX_PLAYTYPE_BACK, TRUE);
+	}
+	
+	if (mState == ScreenState::ETutorial)
+	{
+		PlaySoundMem(mMusicMemory, DX_PLAYTYPE_LOOP);
+
+		mTutorialUI = new tutorialUI(mGame);
+		mTutorialUI->SetTitleText("チュートリアル");
+		std::vector<std::string> text;
+		text.push_back("これからチュートリアルを開始するよ！！");
+		text.push_back("準備はいい？");
+		mTutorialUI->SetExplainText(text);
+		mTutorialTextCount = 0;
+	}
+
 	mFirstTime = GetNowHiPerformanceCount();
 	StartJudgeEffect();//judge effect start
+	StartCharacterAreaEffect(); // character area effect start
 }
 
 void MainScreen::Update()
@@ -174,15 +211,31 @@ void MainScreen::Update()
 
 		mNowTime = GetNowHiPerformanceCount() - mFirstTime;
 
-		if (
-			!CheckSoundMem(mMusicMemory) && //stop music
-			mNorts.size() == 0 && // don't exist norts
-			mLongNotes.size() == 0 &&
-			mWallNotes.size() == 0 &&
-			mTraceNotes.size() == 0
-			)
+		if (mState == ScreenState::EMain) {
+			if (
+				!CheckSoundMem(mMusicMemory) && //stop music
+				mNorts.size() == 0 && // don't exist norts
+				mLongNotes.size() == 0 &&
+				mWallNotes.size() == 0 &&
+				mTraceNotes.size() == 0
+				)
+			{
+				mScene = MainScene::EndScene;
+			}
+		}
+
+		if (mState == ScreenState::ETutorial)
 		{
-			mScene = MainScene::EndScene;
+			if (
+				mNorts.size() == 0 && // don't exist norts
+				mLongNotes.size() == 0 &&
+				mWallNotes.size() == 0 &&
+				mTraceNotes.size() == 0
+				)
+			{
+				mScene = MainScene::EndScene;
+			}
+			TextRead();
 		}
 		
 		return;
@@ -190,7 +243,20 @@ void MainScreen::Update()
 
 	if (mScene == MainScene::EndScene)
 	{
-		mGame->DeleteMainScreen(Game::RhythmGame::EStartScene);
+		if (mState == ScreenState::EMain) {
+			mGame->DeleteMainScreen(Game::RhythmGame::EStartScene);
+		}
+
+		if (mState == ScreenState::ETutorial)
+		{
+			mNowTime = GetNowHiPerformanceCount() - mFirstTime;
+
+			if (mNowTime >= 120000000)
+			{
+				StopSoundMem(mMusicMemory);
+				mGame->DeleteTurorialScreen(Game::RhythmGame::ESelectScene);
+			}
+		}
 		return;
 	}
 }
@@ -271,6 +337,114 @@ void MainScreen::DrawStartText()
 	}
 }
 
+void MainScreen::TextRead()
+{
+	std::vector<std::string> text;
+	switch (mTutorialTextCount)
+	{
+	case 0:
+		if (mNowTime >= 10000000)
+		{
+			text.push_back("タイミングよくボタンを");
+			text.push_back("叩いてね！！");
+			text.push_back("キーボードの場合");
+			text.push_back("赤:S,Jキー");
+			text.push_back("青:D,Kキー");
+			text.push_back("緑:F,Lキー");
+			mTutorialTextCount++;
+			mTutorialUI->SetExplainText(text);
+			mTutorialUI->SetTitleText("タップノーツ");
+		}
+		break;
+	case 1:
+		if (mNowTime >= 32000000)
+		{
+			text.push_back("OK！！");
+			text.push_back("次に行くよ！！");
+			mTutorialTextCount++;
+			mTutorialUI->SetExplainText(text);
+			mTutorialUI->SetTitleText("チュートリアル");
+
+		}
+		break;
+	case 2:
+		if (mNowTime >= 36500000)
+		{
+			text.push_back("ボタンを長押ししてね！！");
+			text.push_back("最後は離しても");
+			text.push_back("押しっぱなしでも");
+			text.push_back("大丈夫だよ！！");
+			mTutorialTextCount++;
+			mTutorialUI->SetExplainText(text);
+			mTutorialUI->SetTitleText("ロングノーツ");
+
+		}
+		break;
+	case 3:
+		if (mNowTime >= 66500000)
+		{
+			text.push_back("OK！！");
+			text.push_back("次に行くよ！！");
+			mTutorialTextCount++;
+			mTutorialUI->SetExplainText(text);
+			mTutorialUI->SetTitleText("チュートリアル");
+
+		}
+		break;
+	case 4:
+		if (mNowTime >= 71000000)
+		{
+			text.push_back("壁が向かってくるよ");
+			text.push_back("コントローラを使って避けてね！！");
+			text.push_back("キーボードの場合");
+			text.push_back("矢印キー");
+			mTutorialTextCount++;
+			mTutorialUI->SetExplainText(text);
+			mTutorialUI->SetTitleText("ウォールノーツ");
+
+		}
+		break;
+	case 5:
+		if (mNowTime >= 92000000)
+		{
+			text.push_back("OK！！");
+			text.push_back("次に行くよ！！");
+			mTutorialTextCount++;
+			mTutorialUI->SetExplainText(text);
+			mTutorialUI->SetTitleText("チュートリアル");
+
+		}
+		break;
+	case 6:
+		if (mNowTime >= 96500000)
+		{
+			text.push_back("ノーツに沿って");
+			text.push_back("キャラクターを動かそう！！");
+			text.push_back("キーボードの場合");
+			text.push_back("矢印キー");
+			mTutorialTextCount++;
+			mTutorialUI->SetExplainText(text);
+			mTutorialUI->SetTitleText("トレースノーツ");
+
+		}
+		break;
+	case 7:
+		if (mNowTime >= 116500000)
+		{
+			text.push_back("OK！！");
+			text.push_back("これでチュートリアルは終わりだよ！！");
+			text.push_back("これで君も一人前だ！！");
+			text.push_back("一緒に宇宙に飛び立とう！！");
+			mTutorialTextCount++;
+			mTutorialUI->SetExplainText(text);
+			mTutorialUI->SetTitleText("チュートリアル");
+		}
+	default:
+		break;
+	}
+
+}
+
 //notes effect
 void MainScreen::StartNoteEffect(VECTOR pos)
 {
@@ -289,34 +463,75 @@ void MainScreen::StartLongEffect(VECTOR pos)
 	SetPosPlayingEffekseer3DEffect(mNortsPlayingEffect[mNortsEffectCount[1]].second, setPos.x, setPos.y, setPos.z);
 	SetRotationPlayingEffekseer3DEffect(mNortsPlayingEffect[mNortsEffectCount[1]].second, 0, 0, 0); //set effect pos and rotation
 
+	auto temp = GetEffekseer3DManager();
+	temp->SetTargetLocation(mNortsPlayingEffect[mNortsEffectCount[1]].second, setPos.x, setPos.y, setPos.z);
+
 	mNortsEffectCount[1]++; //plus count
 
 	if (mNortsPlayingEffect.size() == mNortsEffectCount[1]) { mNortsEffectCount[1] = 0; } // update index
 }
 
-void MainScreen::UpdateLongEffect(VECTOR pos,int& handle)
+void MainScreen::EndLongEffect(VECTOR pos,int index)
 {
+	int handle = StopEffekseer3DEffect(mNortsPlayingEffect[index].second);
+	mNortsPlayingEffect[index] = std::pair(false, 0);
+
 	VECTOR setPos = VGet(pos.x, 20.0, mPosOffset.second - 5); //prepare pos
-	handle = PlayEffekseer3DEffect(mNortsEffect[1]); //play effect
+	handle = PlayEffekseer3DEffect(mNortsEffect[2]); //play effect
 	SetPosPlayingEffekseer3DEffect(handle, setPos.x, setPos.y, setPos.z);
 	SetRotationPlayingEffekseer3DEffect(handle, 0, 0, 0); //set effect pos and rotation
 }
 
-void MainScreen::EndLongEffect(int index)
+void MainScreen::StartTraceEffect(VECTOR pos)
 {
-	int handle = StopEffekseer3DEffect(mNortsPlayingEffect[index].second);
-	mNortsPlayingEffect[index] = std::pair(false, 0);
+	if (!mIsTraceEffect) {
+		VECTOR setPos = VGet(pos.x, pos.y, pos.z); //prepare pos
+		mTraceNotesEffectStart = PlayEffekseer3DEffect(mTraceNotesEffect); //play effect
+		SetPosPlayingEffekseer3DEffect(mTraceNotesEffectStart, setPos.x, setPos.y, setPos.z);
+		SetRotationPlayingEffekseer3DEffect(mTraceNotesEffectStart, 0, 0, 0); //set effect pos and rotation
+		mIsTraceEffect = true;
+	}
 }
 
+void MainScreen::EndTraceEffect()
+{
+	if (mIsTraceEffect) {
+		StopEffekseer3DEffect(mTraceNotesEffectStart);
+		mIsTraceEffect = false;
+	}
+}
+
+void MainScreen::StartWallEffect(VECTOR pos)
+{
+	if (!mIsWallEffect) {
+		VECTOR setPos = VGet(pos.x, pos.y, pos.z); //prepare pos
+		mWallNotesEffectStart = PlayEffekseer3DEffect(mWallNotesEffect); //play effect
+		SetPosPlayingEffekseer3DEffect(mWallNotesEffectStart, setPos.x, setPos.y, setPos.z);
+		SetRotationPlayingEffekseer3DEffect(mWallNotesEffectStart, 0, 0, 0); //set effect pos and rotation
+		mIsWallEffect = true;
+	}
+}
+
+void MainScreen::EndWallEffect()
+{
+	if (mIsWallEffect) {
+		StopEffekseer3DEffect(mWallNotesEffectStart);
+		mIsWallEffect = false;
+	}
+}
+
+// judge Effect
 void MainScreen::StartJudgeEffect()
 {
 	mJudgeEffectStartHandle = PlayEffekseer3DEffect(mJudgeEffect);
 	SetPosPlayingEffekseer3DEffect(mJudgeEffectStartHandle, 0, 240, mPosOffset.second + 15);
 }
 
-void MainScreen::EndJudgeEffect()
+// start effect
+void MainScreen::StartCharacterAreaEffect()
 {
-	StopEffekseer3DEffect(mJudgeEffect);
+	mCharaAreaEffectStartHandle = PlayEffekseer3DEffect(mCharaAreaEffect);
+	SetPosPlayingEffekseer3DEffect(mCharaAreaEffectStartHandle, 0, 10, mPosOffset.second + 15);
 }
 
 void MainScreen::SetMusicFile(std::string fileName)
@@ -324,3 +539,4 @@ void MainScreen::SetMusicFile(std::string fileName)
 	mMusicMemory = LoadSoundMem(fileName.c_str()); 
 	ChangeVolumeSoundMem(255 * mGame->GetGameVolume() / 10, mMusicMemory);
 }
+

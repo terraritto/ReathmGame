@@ -21,7 +21,12 @@ private:
 	std::array<LONGLONG,2> mArrivalTime;
 	EColor mColor;
 
-	bool mIsUpdate; //objectの更新が終わってるか？
+	//input
+	//keyboard is left or right?
+	EKeyboardDirection mDir;
+	// is push?
+	bool mIsPush;
+	bool mIsRelease;
 	
 	//effect
 	bool mIseffect; //effectは割り当てたか？

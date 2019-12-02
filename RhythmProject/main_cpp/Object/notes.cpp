@@ -26,10 +26,29 @@ void Notes::UpdateActor(float deltaTime)
 		+ (value);//+2500.0f * ((ArrivalTime - GetGame<Game>()->GetMainScreen()->mNowTime) / 6000000.0f));
 	SetPosition<VECTOR>(pos);
 
-	if (GetGame<Game>()->GetMainScreen()->mPlayer->mIsInput[static_cast<int>(mColor)])
+
+	// input
+	bool isInput = true;
+	LONGLONG plTime;
+	if (GetGame<Game>()->GetMainScreen()->mPlayer->mIsInputLeft[static_cast<int>(mColor)]) //left side
 	{
-		LONGLONG plTime = GetGame<Game>()->GetMainScreen()->mPlayer->mInputTime[static_cast<int>(mColor)]
+		plTime = GetGame<Game>()->GetMainScreen()->mPlayer->mInputTimeLeft[static_cast<int>(mColor)]
 			- GetGame<Game>()->GetMainScreen()->mFirstTime;
+		mDir = EKeyboardDirection::ELeft;
+	}
+	else if (GetGame<Game>()->GetMainScreen()->mPlayer->mIsInputRight[static_cast<int>(mColor)]) //right side
+	{
+		plTime = GetGame<Game>()->GetMainScreen()->mPlayer->mInputTimeRight[static_cast<int>(mColor)]
+			- GetGame<Game>()->GetMainScreen()->mFirstTime;
+		mDir = EKeyboardDirection::ERight;
+	}
+	else
+	{
+		isInput = false; //not exist input
+	}
+
+	if (isInput)
+	{
 		if (
 			(plTime - ArrivalTime + (-1) * GetGame<Game>()->GetGameTiming()/10 * JUDGE_OFFSET) <= JUDGE_TIME * 4
 			&& (plTime - ArrivalTime + (-1) * GetGame<Game>()->GetGameTiming()/10 * JUDGE_OFFSET) >= -JUDGE_TIME * 4
@@ -42,7 +61,16 @@ void Notes::UpdateActor(float deltaTime)
 			SetState(EDead);
 			GetGame<Game>()->GetMainScreen()->StartNoteMusic();
 			GetGame<Game>()->GetMainScreen()->StartNoteEffect(GetPosition<VECTOR>());
-			GetGame<Game>()->GetMainScreen()->mPlayer->mIsInput[static_cast<int>(mColor)] = false;
+
+			if (mDir == EKeyboardDirection::ELeft)
+			{
+				GetGame<Game>()->GetMainScreen()->mPlayer->mIsInputLeft[static_cast<int>(mColor)] = false;
+			}
+			
+			if(mDir == EKeyboardDirection::ERight)
+			{
+				GetGame<Game>()->GetMainScreen()->mPlayer->mIsInputRight[static_cast<int>(mColor)] = false;
+			}
 		}
 	}
 

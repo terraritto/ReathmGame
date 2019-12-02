@@ -13,6 +13,7 @@ WallNotes::WallNotes(Game* game)
 WallNotes::~WallNotes()
 {
 	GetGame<Game>()->GetMainScreen()->RemoveWallNotes(this);
+	GetGame<Game>()->GetMainScreen()->EndWallEffect(); //end effect
 }
 
 void WallNotes::UpdateActor(float deltaTime)
@@ -61,6 +62,7 @@ void WallNotes::UpdateActor(float deltaTime)
 			{
 				MV1SetMaterialDrawBlendMode(plHandle, 0, DX_BLENDMODE_ADD);
 				MV1SetMaterialDrawBlendParam(plHandle, 0, 50);
+				GetGame<Game>()->GetMainScreen()->StartWallEffect(posDown); //start effect
 			}
 		}
 	}
@@ -72,6 +74,7 @@ void WallNotes::UpdateActor(float deltaTime)
 			//+ (endValue);//+2500.0f * ((ArrivalTime - GetGame<Game>()->GetMainScreen()->mNowTime) / 6000000.0f));
 		pos.z = mHeight; //çÇÇ≥ÇÃâeãø
 		SetPosition<VECTOR>(pos);
+		GetGame<Game>()->GetMainScreen()->EndWallEffect(); //end effect
 	}
 }
 

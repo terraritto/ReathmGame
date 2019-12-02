@@ -352,13 +352,13 @@ void SelectMenu::ProcessInput(const InputState& state)
 			mInputTimeManager = GetNowCount();
 		}
 
-		if (state.Keyboard.GetKeyState(KEY_INPUT_A) == ButtonState::EPressed)
+		if (state.Keyboard.GetKeyState(KEY_INPUT_S) == ButtonState::EPressed)
 		{
 			mSetting[mSettingBigImageIndex]->MoveValue(-0.5);
 			StartScrollMusic();
 		}
 
-		if (state.Keyboard.GetKeyState(KEY_INPUT_D) == ButtonState::EPressed)
+		if (state.Keyboard.GetKeyState(KEY_INPUT_F) == ButtonState::EPressed)
 		{
 			mSetting[mSettingBigImageIndex]->MoveValue(0.5);
 			StartScrollMusic();

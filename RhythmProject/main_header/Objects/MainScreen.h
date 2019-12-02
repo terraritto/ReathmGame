@@ -17,6 +17,12 @@ public:
 		EndScene
 	};
 
+	enum class ScreenState
+	{
+		ETutorial,
+		EMain
+	};
+
 	//Notes
 	void AddNotes(class Notes* note);
 	void RemoveNotes(class Notes* note);
@@ -33,19 +39,30 @@ public:
 	//notes effect
 	void StartNoteEffect(VECTOR pos);
 	void StartLongEffect(VECTOR pos);
-	void UpdateLongEffect(VECTOR pos,int& handle);
-	void EndLongEffect(int index);
+	void EndLongEffect(VECTOR pos,int index);
+	//trace effect
+	void StartTraceEffect(VECTOR pos);
+	void EndTraceEffect();
+	//wall effect
+	void StartWallEffect(VECTOR pos);
+	void EndWallEffect();
 	//judge effect
 	void StartJudgeEffect();
-	void EndJudgeEffect();
+	//void EndJudgeEffect();
+	// chacter area effct
+	void StartCharacterAreaEffect();
 	//notes music
 	void SetMusicFile(std::string fileName);
 	auto GetNoteMusic() const { return mNortsSound; }
 	void StartNoteMusic();
 	//Scene
 	MainScene GetScene() { return mScene; }
+	//State
+	ScreenState GetState() { return mState; }
+	void SetState(ScreenState state) { mState = state; }
 	//Text
 	void DrawStartText();
+	void TextRead();
 public:
 	int mBpm;
 	int mLpb;
@@ -60,6 +77,10 @@ public:
 	std::vector<std::pair<bool,int>> mNortsPlayingEffect;
 	std::vector<int> mNortsEffectCount;
 
+	//single notes effect
+	int mTraceNotesEffect; int mTraceNotesEffectStart;
+	int mWallNotesEffect; int mWallNotesEffectStart;
+
 	//player
 	class Player* mPlayer;
 
@@ -71,6 +92,8 @@ private:
 	//scene
 	MainScene mScene;
 
+	//state
+	ScreenState mState;
 	//stage
 	class Actor* mStage;
 	float mStageRotation;
@@ -86,10 +109,15 @@ private:
 	std::vector<int> mNortsEffect;
 
 	//judge line effect
-	int mJudgeEffect; int mJudgeEffectStartHandle;
+	int mJudgeEffect; int mJudgeEffectStartHandle; bool mIsTraceEffect;
+
+	//character area effect
+	int mCharaAreaEffect; int mCharaAreaEffectStartHandle; bool mIsWallEffect;
 
 	//text draw
 	bool mIsDrawText;
+	//text count
+	int mTutorialTextCount;
 
 	//ÉmÅ[Écâπê∫
 	std::vector<int> mNortsSound;
@@ -102,6 +130,9 @@ private:
 
 	//UI
 	class MainUI* mMainUI;
+
+	// tutorial Specific UI
+	class tutorialUI* mTutorialUI;
 
 	//blur Scene specific
 	LONGLONG mBrightTime;

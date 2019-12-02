@@ -1,5 +1,5 @@
 # MusicEditor
-![DxLib 2019_11_26 23_27_53](https://user-images.githubusercontent.com/28126083/69642013-7a414400-10a4-11ea-95b4-87d2a0188046.png)
+![DxLib 2019_12_02 22_07_13](https://user-images.githubusercontent.com/28126083/69962032-7e5fdc80-1550-11ea-888e-9d931990a7f4.png)
 
 ## Rhythm Spaceとは？
 
@@ -21,9 +21,12 @@ Down key   下に移動
 Left key   左に移動,セレクト画面で左に移動   
 Right key  右に移動,セレクト画面で右に移動  
 
-A key      赤ノーツ,設定画面でのマイナス  
-S key      緑ノーツ,設定画面でのプラス  
-D key      青ノーツ  
+S,J key      赤ノーツ  
+D,K key      緑ノーツ  
+F,L key      青ノーツ  
+
+S 設定画面でのマイナス  
+F 設定画面でのプラス  
 
 escape key start画面の場合終了  
 Enter key  選択  
@@ -35,4 +38,4 @@ Enter key  選択
 トレースノーツ キャラをオブジェクトになぞらせよう！  
 
 ## ダウンロード先
-[ダウンロード](https://www.amazon.co.jp/clouddrive/share/7P5KJaauea6lPI6dED5TAz6ss1TK4QPEuYjvwYejteZ)
+[ダウンロード](https://www.amazon.co.jp/clouddrive/share/3hiqQljcalAIPkDW4hah24UjlpHZqfNGiSQmKfyP96E)

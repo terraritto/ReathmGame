@@ -20,6 +20,7 @@ Actor::Actor(Game* game)
 
 Actor::~Actor()
 {
+
 	mGame->RemoveActor(this);
 	// need to delete components
 	// Because ~components calls removecomponent.need a diffe

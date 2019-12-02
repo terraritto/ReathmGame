@@ -7,6 +7,12 @@ enum class EColor
 	EBlue
 };
 
+enum class EKeyboardDirection
+{
+	ELeft,
+	ERight
+};
+
 constexpr int WINDOW_WIDTH = 768;
 constexpr int WINDOW_HEIGHT = 1024;
 
@@ -38,3 +44,6 @@ constexpr int LV_TEXT_X_OFFSET = 30;
 constexpr int LV_TEXT_Y_OFFSET = 30;
 constexpr int SOUND_TEXT_X_OFFSET = 10;
 constexpr int SOUND_TEXT_Y_OFFSET = 25;
+
+//tutorial text
+constexpr int TUTORIAL_TEXT_OFFSET = 20;

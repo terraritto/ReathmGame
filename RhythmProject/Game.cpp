@@ -6,6 +6,7 @@
 #include "main_header\Objects\MainScreen.h"
 #include "main_header/Objects/SelectMenu.h"
 #include "main_header\Objects\StartScene.h"
+#include "main_header/Objects/TutorialSelectSceen.h"
 #include "main_header\Objects\InputSystem.h"
 #include "main_header\Objects\LoadNotesFile.h"
 #include "main_header\Objects\define.h"
@@ -17,6 +18,9 @@ Game::Game()
 	, mNextState(RhythmGame::EStartScene)
 	, mUpdatingActors(false)
 	, mTickCount(0)
+	, mSpeed(5.0f)
+	, mTiming(0.0f)
+	, mVolume(6.0f)
 {
 
 }
@@ -98,14 +102,18 @@ void Game::ProcessInput()
 		if (mGameState == GameState::EGamePlay) {
 			actor->ProcessInput(state);
 		}
-		else if (!mUIStack.empty())
-		{
-			mUIStack.back()->ProcessInput(state);
-		}
 	}
+
+
 	mUpdatingActors = false;
 
 	//Input about ui
+	if (!mUIStack.empty())
+	{
+		mUIStack.back()->ProcessInput(state);
+	}
+
+	//Input about GamePlay
 	if (mGameState == GameState::EGamePlay)
 	{
 
@@ -170,6 +178,11 @@ void Game::GenerateOutput()
 		mStartSceen->DrawStr();
 	}
 
+	if (mRhythmGameState == RhythmGame::ETutorialScene)
+	{
+		mMainScreen->DrawStartText();
+	}
+
 	if (mRhythmGameState == RhythmGame::EGameScene)
 	{
 		mMainScreen->DrawStartText();
@@ -198,6 +211,12 @@ void Game::UpdateGame()
 	if (mRhythmGameState == RhythmGame::EStartScene)
 	{
 		mStartSceen->Update();
+	}
+
+	//tutorial scene
+	if (mRhythmGameState == RhythmGame::ETutorialScene)
+	{
+		mMainScreen->Update();
 	}
 
 	//GameScene
@@ -277,11 +296,20 @@ void Game::LoadData()
 		mStartSceen = new StartScene(this);
 
 		break;
+	case RhythmGame::ETutorialSelect:
+		mTutorialSelectSceen = new TutorialSelectScreen(this);
+		break;
+	case RhythmGame::ETutorialScene:
+		mMainScreen = new MainScreen(this);
+		mMainScreen->SetState(MainScreen::ScreenState::ETutorial);
+		FileRead("tutorial.csv", mMainScreen, this);
+		break;
 	case RhythmGame::ESelectScene:
 		mSelectScreen = new SelectMenu(this);
 		break;
 	case RhythmGame::EGameScene:
 		mMainScreen = new MainScreen(this);
+		mMainScreen->SetState(MainScreen::ScreenState::EMain);
 		FileRead(mNortsFile, mMainScreen, this);
 		break;
 	default:
@@ -292,6 +320,8 @@ void Game::LoadData()
 
 void Game::UnLoadData()
 {
+
+
 	while (!mActors.empty())
 	{
 		delete mActors.back();
@@ -402,6 +432,15 @@ void Game::DeleteManager()
 			mStartSceen = nullptr;
 			mActors.shrink_to_fit(); //shink and secure memory.
 			break;
+		case RhythmGame::ETutorialSelect:
+			mTutorialSelectSceen->Close();
+			mTutorialSelectSceen = nullptr;
+			break;
+		case RhythmGame::ETutorialScene:
+			delete mMainScreen;
+			mMainScreen = nullptr;
+			mActors.shrink_to_fit();
+			break;
 		case RhythmGame::ESelectScene:
 			mSelectScreen->GameSetting();
 			mSelectScreen->Close();
@@ -431,6 +470,16 @@ void Game::DeleteMainScreen(const RhythmGame& state)
 }
 
 void Game::DeleteSelectScreen(const RhythmGame& state)
+{
+	mNextState = state;
+}
+
+void Game::DeleteTutorialSelectScreen(const RhythmGame& state)
+{
+	mNextState = state;
+}
+
+void Game::DeleteTurorialScreen(const RhythmGame& state)
 {
 	mNextState = state;
 }

@@ -43,7 +43,7 @@ void StartScene::ProcessInput(const InputState& state)
 
 	if (state.Keyboard.GetKeyValue(KEY_INPUT_RETURN) /*|| mCardReader.autoConnectToFelica()*/)
 	{
-		mGame->DeleteStartScreen(Game::RhythmGame::ESelectScene);
+		mGame->DeleteStartScreen(Game::RhythmGame::ETutorialSelect);
 	}
 }
 

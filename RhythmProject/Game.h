@@ -19,6 +19,8 @@ public:
 	enum class RhythmGame
 	{
 		EStartScene,
+		ETutorialSelect,
+		ETutorialScene,
 		ESelectScene,
 		EGameScene
 	};
@@ -54,6 +56,8 @@ public:
 	void DeleteStartScreen(const RhythmGame& state);
 	void DeleteMainScreen(const RhythmGame& state);
 	void DeleteSelectScreen(const RhythmGame& state);
+	void DeleteTutorialSelectScreen(const RhythmGame& state);
+	void DeleteTurorialScreen(const RhythmGame& state);
 private:
 	//helper function for game loop
 	void ProcessInput();
@@ -87,6 +91,7 @@ private:
 	//Game-specific code
 	class MainScreen* mMainScreen;
 	class StartScene* mStartSceen;
+	class TutorialSelectScreen* mTutorialSelectSceen;
 	class SelectMenu* mSelectScreen;
 
 	float mSpeed;
