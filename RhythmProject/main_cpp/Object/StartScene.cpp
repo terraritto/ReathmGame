@@ -3,12 +3,15 @@
 #include "../../main_header/Actors/Actor.h"
 #include "../../main_header/Objects/InputSystem.h"
 #include "../../main_header/Objects/FPSActor.h"
+#include "../../main_header/Objects/define.h"
 
 StartScene::StartScene(Game* game)
 	: mGame(game)
 	, mStageRotation(0.0f)
 	, mAlpha(1.0f)
 	, mStrState(FlashStr::Down)
+	//, mIsCardRead(false)
+	, mIsCoinIn(false)
 {
 	mStage = new Actor(game);
 	mStage->SetPosition(VGet(0.0f, 0.0f, 0.0f));
@@ -41,10 +44,16 @@ void StartScene::ProcessInput(const InputState& state)
 		mGame->SetState(Game::GameState::EQuit);
 	}
 
-	if (state.Keyboard.GetKeyValue(KEY_INPUT_RETURN) /*|| mCardReader.autoConnectToFelica()*/)
+	if (state.Keyboard.GetKeyValue(KEY_INPUT_RETURN))
 	{
-		mGame->DeleteStartScreen(Game::RhythmGame::ETutorialSelect);
+		mIsCoinIn = true;
 	}
+	/*
+	if (mCardReader.autoConnectToFelica())
+	{
+		mIsCardRead = true;
+	}
+	*/
 }
 
 void StartScene::Update()
@@ -54,6 +63,11 @@ void StartScene::Update()
 	MATRIX rot = MGetRotY(mStageRotation);
 	MV1SetFrameUserLocalMatrix(mStage->GetModelHandle(), 0, rot);
 	if (mStageRotation > DX_TWO_PI) { mStageRotation = 0.0f; }
+
+	if (/*mIsCardRead &&*/ mIsCoinIn)
+	{
+		mGame->DeleteStartScreen(Game::RhythmGame::ETutorialSelect);
+	}
 }
 
 void StartScene::DrawStr()
@@ -84,4 +98,15 @@ void StartScene::DrawStr()
 		DrawString(384 - 115, 612, "Press Esc To End", GetColor(255, 0, 255));
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
+
+	std::string card = "Card:";
+	//card += mIsCardRead ? "True" : "False";
+	std::string coin = "Coin:";
+	coin += mIsCoinIn ? "True" : "False";
+
+	int drawWidth = GetDrawStringWidth(card.c_str(), card.size());
+	DrawString((WINDOW_WIDTH - drawWidth) / 2,WINDOW_HEIGHT-30, card.c_str(), GetColor(255, 0, 255));
+
+	drawWidth = GetDrawStringWidth(coin.c_str(), coin.size());
+	DrawString((WINDOW_WIDTH - drawWidth) / 2, WINDOW_HEIGHT-60, coin.c_str(), GetColor(255, 0, 255));
 }

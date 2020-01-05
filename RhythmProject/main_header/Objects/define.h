@@ -1,4 +1,5 @@
 #pragma once
+#include "DxLib.h"
 
 enum class EColor
 {
@@ -6,6 +7,22 @@ enum class EColor
 	EGreen,
 	EBlue
 };
+
+/**********Timing define**********/
+enum class ETiming
+{
+	EBlust,
+	ECritical,
+	EHit,
+	EMiss,
+	ENone
+};
+
+constexpr LONGLONG JUDGE_TIME = 32000;
+
+ETiming DecisionTiming(LONGLONG time);
+
+/*********************************/
 
 enum class EKeyboardDirection
 {
@@ -16,7 +33,6 @@ enum class EKeyboardDirection
 constexpr int WINDOW_WIDTH = 768;
 constexpr int WINDOW_HEIGHT = 1024;
 
-constexpr LONGLONG JUDGE_TIME = 32000;
 constexpr LONGLONG JUDGE_OFFSET = 128000;
 constexpr float ONE_TIME = 6000000;
 

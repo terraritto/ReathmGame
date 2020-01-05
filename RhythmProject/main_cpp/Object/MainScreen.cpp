@@ -39,7 +39,16 @@ MainScreen::MainScreen(Game* game)
 	mNortsEffectCount.emplace_back(0);
 	mNortsEffect.emplace_back(LoadEffekseerEffect("object/long_end_effect.efk", 1.5f));
 	mNortsEffectCount.emplace_back(0);
-	
+	//judge literal‚Ìeffect‚ð—pˆÓ
+	mNortsEffect.emplace_back(LoadEffekseerEffect("object/timing_critical_effect.efk"));
+	mNortsEffectCount.emplace_back(0);
+	mNortsEffect.emplace_back(LoadEffekseerEffect("object/timing_blast_effect.efk"));
+	mNortsEffectCount.emplace_back(0);
+	mNortsEffect.emplace_back(LoadEffekseerEffect("object/timing_hit_effect.efk"));
+	mNortsEffectCount.emplace_back(0);
+	mNortsEffect.emplace_back(LoadEffekseerEffect("object/timing_miss_effect.efk"));
+	mNortsEffectCount.emplace_back(0);
+
 	// set effect of trace
 	mTraceNotesEffect = LoadEffekseerEffect("object/trace_effect.efk");
 
@@ -51,6 +60,9 @@ MainScreen::MainScreen(Game* game)
 
 	// set effect of character area
 	mCharaAreaEffect = LoadEffekseerEffect("object/character_area.efk");
+
+	//set effect of character line area
+	mCharaLineEffect = LoadEffekseerEffect("object/character_line.efk");
 
 	for (int i = 0; i < 30; i++)
 	{
@@ -139,8 +151,10 @@ MainScreen::~MainScreen()
 	}
 	StopEffekseer3DEffect(mJudgeEffectStartHandle);
 	StopEffekseer3DEffect(mCharaAreaEffectStartHandle);
+	StopEffekseer3DEffect(mCharaLineEffectStartHandle);
 	DeleteEffekseerEffect(mJudgeEffect);
 	DeleteEffekseerEffect(mCharaAreaEffect);
+	DeleteEffekseerEffect(mCharaLineEffect);
 }
 
 void MainScreen::Start()
@@ -165,8 +179,10 @@ void MainScreen::Start()
 	}
 
 	mFirstTime = GetNowHiPerformanceCount();
+	mFirst = std::chrono::system_clock::now();
 	StartJudgeEffect();//judge effect start
 	StartCharacterAreaEffect(); // character area effect start
+	StartCharacterLineEffect(); // character line effect start
 }
 
 void MainScreen::Update()
@@ -210,6 +226,13 @@ void MainScreen::Update()
 	{
 
 		mNowTime = GetNowHiPerformanceCount() - mFirstTime;
+		mNow = std::chrono::system_clock::now();
+
+		//effect for player line
+		VECTOR pos = mPlayer->GetPosition<VECTOR>();
+		pos = Math::VectorTransAxis(pos);
+		UpdateCharacterLineEffect(pos);
+
 
 		if (mState == ScreenState::EMain) {
 			if (
@@ -222,6 +245,7 @@ void MainScreen::Update()
 			{
 				mScene = MainScene::EndScene;
 			}
+			return;
 		}
 
 		if (mState == ScreenState::ETutorial)
@@ -520,6 +544,16 @@ void MainScreen::EndWallEffect()
 	}
 }
 
+void MainScreen::StartJudgeLiteralEffect(VECTOR pos, ETiming status)
+{
+	int handle;
+	VECTOR setPos;
+
+	setPos = VGet(pos.x, 20.0 + 50, mPosOffset.second - 5); //prepare pos
+	handle = PlayEffekseer3DEffect(mNortsEffect[static_cast<int>(status) + 3]); //play effect
+	SetPosPlayingEffekseer3DEffect(handle, setPos.x, setPos.y, setPos.z);
+}
+
 // judge Effect
 void MainScreen::StartJudgeEffect()
 {
@@ -534,6 +568,20 @@ void MainScreen::StartCharacterAreaEffect()
 	SetPosPlayingEffekseer3DEffect(mCharaAreaEffectStartHandle, 0, 10, mPosOffset.second + 15);
 }
 
+// character line effect
+void MainScreen::StartCharacterLineEffect()
+{
+	mCharaLineEffectStartHandle = PlayEffekseer3DEffect(mCharaLineEffect);
+}
+
+void MainScreen::UpdateCharacterLineEffect(VECTOR pos)
+{
+	StopEffekseer3DEffect(mCharaLineEffectStartHandle);
+	mCharaLineEffectStartHandle = PlayEffekseer3DEffect(mCharaLineEffect);
+	SetPosPlayingEffekseer3DEffect(mCharaLineEffectStartHandle, 0.0f, pos.y - 50.0f, pos.z);
+}
+
+// set music
 void MainScreen::SetMusicFile(std::string fileName)
 {
 	mMusicMemory = LoadSoundMem(fileName.c_str()); 

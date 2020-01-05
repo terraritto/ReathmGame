@@ -20,10 +20,10 @@ Notes::~Notes()
 void Notes::UpdateActor(float deltaTime)
 {
 	VECTOR pos = GetPosition<VECTOR>();
-	float value = +2500.0f * (static_cast<float>((ArrivalTime - GetGame<Game>()->GetMainScreen()->mNowTime)) / static_cast<float>((ONE_TIME *(2.1 - GetGame<Game>()->GetGameSpeed()/5))));
-	pos.x = GetGame<Game>()->GetMainScreen()->GetPosOffset().first + 100.0f * mLane + 50;
-	pos.y = GetGame<Game>()->GetMainScreen()->GetPosOffset().second
-		+ (value);//+2500.0f * ((ArrivalTime - GetGame<Game>()->GetMainScreen()->mNowTime) / 6000000.0f));
+	float value = +2500.0f * (static_cast<float>((ArrivalTime - GetGame<Game>()->GetMainScreen()->mNowTime)) / 
+		static_cast<float>((ONE_TIME *(2.1f - GetGame<Game>()->GetGameSpeed()/5.0f))));
+	pos.x = GetGame<Game>()->GetMainScreen()->GetPosOffset().first  + 100.0f * mLane + 50;
+	pos.y = GetGame<Game>()->GetMainScreen()->GetPosOffset().second + (value);
 	SetPosition<VECTOR>(pos);
 
 
@@ -49,10 +49,9 @@ void Notes::UpdateActor(float deltaTime)
 
 	if (isInput)
 	{
-		if (
-			(plTime - ArrivalTime + (-1) * GetGame<Game>()->GetGameTiming()/10 * JUDGE_OFFSET) <= JUDGE_TIME * 4
-			&& (plTime - ArrivalTime + (-1) * GetGame<Game>()->GetGameTiming()/10 * JUDGE_OFFSET) >= -JUDGE_TIME * 4
-			)
+		LONGLONG time = plTime - ArrivalTime + (-1) * GetGame<Game>()->GetGameTiming() / 10 * JUDGE_OFFSET;
+		auto status = DecisionTiming(time);
+		if (status !=ETiming::ENone && status != ETiming::EMiss)
 		{
 			//update combo
 			GetGame<Game>()->GetMainScreen()->mTotalCombo += 1;
@@ -61,7 +60,7 @@ void Notes::UpdateActor(float deltaTime)
 			SetState(EDead);
 			GetGame<Game>()->GetMainScreen()->StartNoteMusic();
 			GetGame<Game>()->GetMainScreen()->StartNoteEffect(GetPosition<VECTOR>());
-
+			GetGame<Game>()->GetMainScreen()->StartJudgeLiteralEffect(GetPosition<VECTOR>(), status);
 			if (mDir == EKeyboardDirection::ELeft)
 			{
 				GetGame<Game>()->GetMainScreen()->mPlayer->mIsInputLeft[static_cast<int>(mColor)] = false;
@@ -78,7 +77,7 @@ void Notes::UpdateActor(float deltaTime)
 	{
 		//update combo
 		GetGame<Game>()->GetMainScreen()->mCombo = 0;
-
+		GetGame<Game>()->GetMainScreen()->StartJudgeLiteralEffect(GetPosition<VECTOR>(), ETiming::EMiss);
 		SetState(EDead);
 	}
 }

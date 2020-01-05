@@ -25,4 +25,7 @@ private:
 	FlashStr mStrState;
 
 	//LazyPCSCFelicaLite::PCSCFelicaLite mCardReader;
+
+	//bool mIsCardRead;
+	bool mIsCoinIn;
 };

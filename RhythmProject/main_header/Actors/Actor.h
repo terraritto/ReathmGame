@@ -96,9 +96,6 @@ public:
 	{ 
 		mModelHandle = MV1LoadModel(fileName.c_str()); 
 		mIsDrawModel = true; 
-		ErrorLogFmtAdd("Load Model: %d", mModelHandle);
-		ErrorLogFmtAdd("Load File: %s", fileName.c_str());
-
 	}
 	int GetModelHandle() const { return mModelHandle; }
 

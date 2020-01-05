@@ -68,6 +68,10 @@ bool Game::Initialize()
 
 	LoadData();
 
+	//z buffer
+	SetUseZBuffer3D(TRUE);
+	SetWriteZBuffer3D(TRUE);
+
 	return true;
 }
 
@@ -186,6 +190,11 @@ void Game::GenerateOutput()
 	if (mRhythmGameState == RhythmGame::EGameScene)
 	{
 		mMainScreen->DrawStartText();
+		/*
+		DrawFormatString(10, 300, GetColor(255, 255, 255), "DX_Time:%lld", mMainScreen->mNowTime);
+		LONGLONG ans = std::chrono::duration_cast<std::chrono::microseconds>(mMainScreen->mNow - mMainScreen->mFirst).count();
+		DrawFormatString(10, 320, GetColor(255, 255, 255), "Chrono_Time:%lld", ans);
+		*/
 	}
 
 	//è„ÇÃìz
@@ -193,7 +202,6 @@ void Game::GenerateOutput()
 	//DrawBox(0, 150, 150, 300, GetColor(0, 255, 0), TRUE);
 
 	//effekseer
-	UpdateEffekseer3D();
 	DrawEffekseer3D();
 }
 
@@ -286,6 +294,10 @@ void Game::UpdateGame()
 			++iter;
 		}
 	}
+
+	//effekseer
+	Effekseer_Sync3DSetting();
+	UpdateEffekseer3D();
 }
 
 void Game::LoadData()

@@ -2,6 +2,8 @@
 #include "DxLib.h"
 #include "TraceNotes.h"
 #include <string>
+#include <chrono>
+#include "define.h"
 
 class MainScreen {
 public:
@@ -23,6 +25,7 @@ public:
 		EMain
 	};
 
+	/*********************************norts*****************************************/
 	//Notes
 	void AddNotes(class Notes* note);
 	void RemoveNotes(class Notes* note);
@@ -36,6 +39,10 @@ public:
 	//WallNotes
 	void AddWallNotes(class WallNotes* note);
 	void RemoveWallNotes(class WallNotes* note);
+	/*******************************************************************************/
+
+
+	/********************************effect*****************************************/
 	//notes effect
 	void StartNoteEffect(VECTOR pos);
 	void StartLongEffect(VECTOR pos);
@@ -46,11 +53,18 @@ public:
 	//wall effect
 	void StartWallEffect(VECTOR pos);
 	void EndWallEffect();
+	// judge Leteral
+	void StartJudgeLiteralEffect(VECTOR pos, ETiming status);
 	//judge effect
 	void StartJudgeEffect();
-	//void EndJudgeEffect();
 	// chacter area effct
 	void StartCharacterAreaEffect();
+	// character area line
+	void StartCharacterLineEffect();
+	void UpdateCharacterLineEffect(VECTOR pos);
+	/*******************************************************************************/
+
+
 	//notes music
 	void SetMusicFile(std::string fileName);
 	auto GetNoteMusic() const { return mNortsSound; }
@@ -69,6 +83,7 @@ public:
 	int mMusicMemory;
 	LONGLONG mFirstTime;
 	LONGLONG mNowTime;
+	std::chrono::system_clock::time_point mFirst, mNow;
 
 	//ÉmÅ[Écëfçﬁ
 	std::vector<class ObjectSampler*> mObjectSampler;
@@ -113,6 +128,9 @@ private:
 
 	//character area effect
 	int mCharaAreaEffect; int mCharaAreaEffectStartHandle; bool mIsWallEffect;
+
+	// character line effect
+	int mCharaLineEffect; int mCharaLineEffectStartHandle;
 
 	//text draw
 	bool mIsDrawText;

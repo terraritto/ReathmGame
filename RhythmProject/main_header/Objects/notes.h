@@ -10,7 +10,9 @@ public:
 	void UpdateActor(float deltaTime) override;
 	void ActorInput(const struct InputState& keyState) override;
 
-	void SetArrivalTime(LONGLONG time) { ArrivalTime = time; }
+	void SetArrivalTime(LONGLONG time) { ArrivalTime = time;
+	ErrorLogFmtAdd("top norts Start: %dll", ArrivalTime);
+	}
 	void SetLane(int lane) { mLane = lane; }
 	void SetColor(char color);
 private:

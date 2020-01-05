@@ -241,14 +241,18 @@ void SelectMenu::ProcessInput(const InputState& state)
 	if (GetNowCount() - mInputTimeManager <= 100) { return; }
 
 	if (mState == SelectState::ESelectState) {
-		if (state.Keyboard.GetKeyState(KEY_INPUT_RIGHT) == ButtonState::EPressed)
+		if (state.Keyboard.GetKeyState(KEY_INPUT_RIGHT) == ButtonState::EPressed
+			|| state.Controller.GetButtonState(3) == ButtonState::EPressed
+			)
 		{
 			MoveBox(+1);
 			StartScrollMusic();
 			mInputTimeManager = GetNowCount();
 		}
 
-		if (state.Keyboard.GetKeyState(KEY_INPUT_LEFT) == ButtonState::EPressed)
+		if (state.Keyboard.GetKeyState(KEY_INPUT_LEFT) == ButtonState::EPressed
+			|| state.Controller.GetButtonState(2) == ButtonState::EPressed
+			)
 		{
 			MoveBox(-1);
 			StartScrollMusic();
@@ -256,7 +260,9 @@ void SelectMenu::ProcessInput(const InputState& state)
 
 		}
 
-		if (state.Keyboard.GetKeyState(KEY_INPUT_RETURN) == ButtonState::EPressed)
+		if (state.Keyboard.GetKeyState(KEY_INPUT_RETURN) == ButtonState::EPressed
+			|| state.Controller.GetButtonState(0) == ButtonState::EPressed
+			)
 		{
 			mState = SelectState::ESettingState;
 
@@ -279,21 +285,27 @@ void SelectMenu::ProcessInput(const InputState& state)
 
 	if (mState == SelectState::ESettingState)
 	{
-		if (state.Keyboard.GetKeyState(KEY_INPUT_RIGHT) == ButtonState::EPressed)
+		if (state.Keyboard.GetKeyState(KEY_INPUT_RIGHT) == ButtonState::EPressed
+			|| state.Controller.GetButtonState(3) == ButtonState::EPressed
+			)
 		{
 			MoveOption(+1);
 			StartScrollMusic();
 			mInputTimeManager = GetNowCount();
 		}
 
-		if (state.Keyboard.GetKeyState(KEY_INPUT_LEFT) == ButtonState::EPressed)
+		if (state.Keyboard.GetKeyState(KEY_INPUT_LEFT) == ButtonState::EPressed
+			|| state.Controller.GetButtonState(2) == ButtonState::EPressed
+			)
 		{
 			MoveOption(-1);
 			StartScrollMusic();
 			mInputTimeManager = GetNowCount();
 		}
 
-		if (state.Keyboard.GetKeyState(KEY_INPUT_RETURN) == ButtonState::EPressed)
+		if (state.Keyboard.GetKeyState(KEY_INPUT_RETURN) == ButtonState::EPressed
+			|| state.Controller.GetButtonState(0) == ButtonState::EPressed
+			)
 		{
 			if (mOption[mOptionBigImageIndex]->GetState() == OptionSelectBox::OptionState::EBack) {
 				mState = SelectState::ESelectState;
@@ -338,33 +350,43 @@ void SelectMenu::ProcessInput(const InputState& state)
 
 	if (mState == SelectState::EOptionState)
 	{
-		if (state.Keyboard.GetKeyState(KEY_INPUT_RIGHT) == ButtonState::EPressed)
+		if (state.Keyboard.GetKeyState(KEY_INPUT_RIGHT) == ButtonState::EPressed
+			|| state.Controller.GetButtonState(3) == ButtonState::EPressed
+
+			)
 		{
 			MoveSetting(+1);
 			StartScrollMusic();
 			mInputTimeManager = GetNowCount();
 		}
 
-		if (state.Keyboard.GetKeyState(KEY_INPUT_LEFT) == ButtonState::EPressed)
+		if (state.Keyboard.GetKeyState(KEY_INPUT_LEFT) == ButtonState::EPressed
+			|| state.Controller.GetButtonState(2) == ButtonState::EPressed
+			)
 		{
 			MoveSetting(-1);
 			StartScrollMusic();
 			mInputTimeManager = GetNowCount();
 		}
 
-		if (state.Keyboard.GetKeyState(KEY_INPUT_S) == ButtonState::EPressed)
+		if (state.Keyboard.GetKeyState(KEY_INPUT_S) == ButtonState::EPressed
+			|| state.Controller.GetButtonState(10) == ButtonState::EPressed
+			)
 		{
 			mSetting[mSettingBigImageIndex]->MoveValue(-0.5);
 			StartScrollMusic();
 		}
 
-		if (state.Keyboard.GetKeyState(KEY_INPUT_F) == ButtonState::EPressed)
+		if (state.Keyboard.GetKeyState(KEY_INPUT_F) == ButtonState::EPressed
+			|| state.Controller.GetButtonState(4) == ButtonState::EPressed)
 		{
 			mSetting[mSettingBigImageIndex]->MoveValue(0.5);
 			StartScrollMusic();
 		}
 
-		if (state.Keyboard.GetKeyState(KEY_INPUT_RETURN) == ButtonState::EPressed)
+		if (state.Keyboard.GetKeyState(KEY_INPUT_RETURN) == ButtonState::EPressed
+			|| state.Controller.GetButtonState(0) == ButtonState::EPressed
+			)
 		{
 			mState = SelectState::ESettingState;
 
