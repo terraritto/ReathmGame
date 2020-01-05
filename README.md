@@ -38,4 +38,4 @@ Enter key  選択
 トレースノーツ キャラをオブジェクトになぞらせよう！  
 
 ## ダウンロード先
-[ダウンロード](https://www.amazon.co.jp/clouddrive/share/PBXjzppTvKW3u5X6SxCcTCK0dn5cgqeIDl7DaKtRVcg)
+[ダウンロード](https://www.amazon.co.jp/clouddrive/share/kGmMaKE3RfPiulhiurij7qIuBzmmvs1eVFKnZ7A5w37)
